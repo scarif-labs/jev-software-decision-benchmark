@@ -1,0 +1,93 @@
+{
+  "generatedAt": "2026-09-18T04:01:09.588Z",
+  "note": "Hashes of datasets and artifacts. Raw case JSONL contain GitHub PR text (titles/bodies/diffs/release notes) and are NOT redistributed; use the reconstruction scripts with the recorded hashes to verify a rebuild.",
+  "rawDatasetsWithheld": {
+    "data/bump.cases.jsonl": {
+      "sha256": "3f8bb9ff0deb39ac5b1ff656f44fe5de784720631149abb534362a55aec38326",
+      "bytes": 3673780
+    },
+    "data/control.cases.jsonl": {
+      "sha256": "c9d0dd8f65365712ec45b3c4f41a33dd4c96495ffbf8e543ddfa2581e7acf049",
+      "bytes": 5718251
+    },
+    "data/dataset.jsonl": {
+      "sha256": "c906191e8b6fd32ef3a57bbae256d54efa2412ce0448a4ba3b346839bb333210",
+      "bytes": 8298614
+    },
+    "data/ood-dataset.jsonl": {
+      "sha256": "b756f0b19911ef75f0f23d28f7935bcf4816407763a2a8311c8c04010b248624",
+      "bytes": 1306354
+    },
+    "data/subset200.jsonl": {
+      "sha256": "257144d81f922af6ab445a135e14a76c5a5e7c36224b869826e0e039aa13dd04",
+      "bytes": 1507484
+    }
+  },
+  "publishedArtifacts": {
+    "data/dataset.stats.json": {
+      "sha256": "bedb099688fe55b736951acc1eaac0728c1a60e5c53e401f493ece1b600b3822",
+      "bytes": 522
+    },
+    "data/leakage-report.json": {
+      "sha256": "8c44cf8655423fdcd99b1293969f3cb03c6a91bbaa1e76ad1f07b4c4b4fde08b",
+      "bytes": 3905
+    },
+    "data/ood-dataset.meta.json": {
+      "sha256": "bbd4e34707291e8ee2d13eb3f705dcb1507a0ecceb159bbabd77defaa0fe2c8f",
+      "bytes": 13903
+    },
+    "data/ood-leakage-report.json": {
+      "sha256": "7a5282da142212760154bc862a05c46052834c60d50ecae8b83ead56933771b3",
+      "bytes": 3143
+    },
+    "data/ood-source-manifest.json": {
+      "sha256": "0a271d124446b13687d7f9c4bbb2cca83e70b2ed079aa5d212547d42a8abcce9",
+      "bytes": 3428
+    },
+    "results/summary.json": {
+      "sha256": "132b3358878110a3613400aca3cf090ae627268e337c2800f8a092ae36513603",
+      "bytes": 7327
+    },
+    "results-ood/summary.json": {
+      "sha256": "aea22833b1b04a4f93650c1d64b7d769a2e7cd0bab1522e59b7630655a56058e",
+      "bytes": 31718
+    },
+    "report/table.json": {
+      "sha256": "eb64525ff207e04fee369b098efd432d04a8dc86b75519801710fa7bc0c30c94",
+      "bytes": 11834
+    },
+    "analysis/decision-forensics.json": {
+      "sha256": "19e955942502918123672961272c805f50dcdbdf666b41659e1d30e1b385c0cf",
+      "bytes": 969641
+    },
+    "analysis/ood-validation.json": {
+      "sha256": "869afa90185eaca31461b9b54212b4c0f9bbea875d72b7ea43791ccb28576a9a",
+      "bytes": 34497
+    },
+    "analysis/ood-forensic-audit.json": {
+      "sha256": "f9a02b0f367d0afe93772efc5746cdf1e99f4722c649d7c08e21a1493bf3bb0e",
+      "bytes": 51109
+    }
+  },
+  "externalSources": [
+    {
+      "name": "BUMP",
+      "url": "https://github.com/chains-project/bump/",
+      "license": "MIT",
+      "use": "source of the 551 reproduced breaking dependency updates"
+    },
+    {
+      "name": "Zenodo 12720767 (Dependabot and Security Pull Requests)",
+      "url": "https://doi.org/10.5281/zenodo.12720767",
+      "license": "CC-BY-4.0",
+      "use": "inspected only; not included in the released dataset"
+    },
+    {
+      "name": "GitHub REST/GraphQL API",
+      "url": "https://docs.github.com/rest",
+      "license": "GitHub Terms of Service; PR content belongs to repository owners",
+      "use": "controls, OOD reverts, PR metadata used at build time"
+    }
+  ],
+  "modelInputAggregateHash": "5f0f5605f0b12fd3ebaa1799caeffee4d628f1f3a9e8ea1d50de465c0d509859"
+}

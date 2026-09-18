@@ -1,0 +1,157 @@
+{
+  "verdict": "PASS",
+  "cases": 185,
+  "forbiddenKeyViolations": [],
+  "forbiddenTokenViolations": [],
+  "topLevelViolations": [],
+  "titleViolations": [],
+  "freeTextOutcomeMentions": [
+    {
+      "id": "ood-break-kestra-io_plugin-tika-cb90f672ab",
+      "hits": [
+        "revert"
+      ]
+    },
+    {
+      "id": "ood-break-KennispuntTwente_KWALLM-ceeef14aa8",
+      "hits": [
+        "regression"
+      ]
+    },
+    {
+      "id": "ood-break-jIDvDIj_slot2sync-1b43e8b09d",
+      "hits": [
+        "broke",
+        "broken",
+        "failing"
+      ]
+    },
+    {
+      "id": "ood-break-ss220-space_Paradise-54187f7146",
+      "hits": [
+        "failing"
+      ]
+    },
+    {
+      "id": "ood-break-gitleye_challengetheump-06d49603d1",
+      "hits": [
+        "regression"
+      ]
+    },
+    {
+      "id": "ood-break-LibreTexts_conductor-9264e3b863",
+      "hits": [
+        "reverted",
+        "revert"
+      ]
+    },
+    {
+      "id": "ood-break-owncloud_contacts-f8b4388305",
+      "hits": [
+        "revert"
+      ]
+    },
+    {
+      "id": "ood-break-navikt_meroppfolging-frontend-01e3234696",
+      "hits": [
+        "revert"
+      ]
+    },
+    {
+      "id": "ood-break-djoamersfoort_LedenAdministratie-bd747f350f",
+      "hits": [
+        "broke",
+        "broken"
+      ]
+    },
+    {
+      "id": "ood-break-arabianq_pipewire-soundpad-c1d145fbc8",
+      "hits": [
+        "revert"
+      ]
+    },
+    {
+      "id": "ood-break-otterscale_otterscale-1055288c2e",
+      "hits": [
+        "failing"
+      ]
+    },
+    {
+      "id": "ood-break-toxicbishop_Portfolio-4-c243d2c191",
+      "hits": [
+        "revert"
+      ]
+    },
+    {
+      "id": "ood-ctrl-ministryofjustice_hmpps-book-secure-move-frontend-3648",
+      "hits": [
+        "broke",
+        "broken"
+      ]
+    },
+    {
+      "id": "ood-ctrl-dividor_evidencelab-162",
+      "hits": [
+        "regression"
+      ]
+    },
+    {
+      "id": "ood-ctrl-bervProject_wedding-162",
+      "hits": [
+        "regression"
+      ]
+    },
+    {
+      "id": "ood-ctrl-ivopogace_riviera-sunbed-booking-1085",
+      "hits": [
+        "broke",
+        "broken"
+      ]
+    },
+    {
+      "id": "ood-ctrl-mdn_dex-520",
+      "hits": [
+        "regression"
+      ]
+    },
+    {
+      "id": "ood-ctrl-ItsSunnyMonster_averiesque.com-64",
+      "hits": [
+        "failing"
+      ]
+    },
+    {
+      "id": "ood-ctrl-gabrielecabrini_portfolio-11",
+      "hits": [
+        "regression"
+      ]
+    }
+  ],
+  "perfectSeparatorCount": 2,
+  "perfectSeparators": [
+    {
+      "field": "preMergeChecks",
+      "value": "preMergeChecks=success status check rollup on the head commit",
+      "total": 71,
+      "breaking": 0,
+      "control": 71,
+      "purity": 1
+    },
+    {
+      "field": "update.dependency",
+      "value": "update.dependency=typescript",
+      "total": 15,
+      "breaking": 15,
+      "control": 0,
+      "purity": 1
+    }
+  ],
+  "independence": {
+    "repoOverlap": [],
+    "prOverlap": [],
+    "headShaOverlap": [],
+    "transitionOverlap": [],
+    "duplicateWithinOod": []
+  },
+  "modelInputAggregateHash": "5f0f5605f0b12fd3ebaa1799caeffee4d628f1f3a9e8ea1d50de465c0d509859"
+}

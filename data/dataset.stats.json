@@ -1,0 +1,30 @@
+{
+  "breaking": 551,
+  "droppedBreakingNoPrData": 20,
+  "controlsAvailable": 790,
+  "controlsAfterFieldFilter": 637,
+  "controlsSampled": 551,
+  "total": 1102,
+  "repos": 148,
+  "breakingRepos": 148,
+  "controlRepos": 81,
+  "goldCounts": {
+    "REQUIRE_REVIEW": 551,
+    "AUTO_MERGE": 551
+  },
+  "datasetCounts": {
+    "breaking": 551,
+    "control": 551
+  },
+  "updateType": {
+    "minor": 406,
+    "other": 161,
+    "major": 305,
+    "patch": 230
+  },
+  "verificationTiers": {
+    "C": 548,
+    "A": 1,
+    "B": 2
+  }
+}

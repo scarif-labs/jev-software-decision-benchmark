@@ -1,0 +1,1531 @@
+{
+  "meta": {
+    "generatedAt": "2026-09-18T03:48:19.827Z",
+    "cases": 185,
+    "breaking": 100,
+    "controls": 85,
+    "note": "OOD-only forensic audit; no rerun, no threshold tuning."
+  },
+  "recomputed": {
+    "ranking": {
+      "jev": {
+        "auroc": 0.6052352941176471,
+        "averagePrecision": 0.5096183964972206
+      },
+      "deepseekGated": {
+        "auroc": 0.5341764705882353,
+        "averagePrecision": 0.38532823725515614
+      },
+      "deepseekRaw": {
+        "auroc": 0.46188235294117647,
+        "averagePrecision": 0.38190233012068864
+      },
+      "staticRule": {
+        "auroc": 0.5685294117647058,
+        "averagePrecision": 0.36766069644684624
+      }
+    },
+    "bins": [
+      {
+        "lo": 0,
+        "hi": 0.1,
+        "n": 113,
+        "controls": 46,
+        "breaking": 67,
+        "controlRate": 0.40707964601769914
+      },
+      {
+        "lo": 0.1,
+        "hi": 0.2,
+        "n": 11,
+        "controls": 6,
+        "breaking": 5,
+        "controlRate": 0.5454545454545454
+      },
+      {
+        "lo": 0.2,
+        "hi": 0.3,
+        "n": 6,
+        "controls": 3,
+        "breaking": 3,
+        "controlRate": 0.5
+      },
+      {
+        "lo": 0.3,
+        "hi": 0.4,
+        "n": 5,
+        "controls": 4,
+        "breaking": 1,
+        "controlRate": 0.8
+      },
+      {
+        "lo": 0.4,
+        "hi": 0.5,
+        "n": 10,
+        "controls": 4,
+        "breaking": 6,
+        "controlRate": 0.4
+      },
+      {
+        "lo": 0.5,
+        "hi": 0.6,
+        "n": 8,
+        "controls": 5,
+        "breaking": 3,
+        "controlRate": 0.625
+      },
+      {
+        "lo": 0.6,
+        "hi": 0.7,
+        "n": 6,
+        "controls": 4,
+        "breaking": 2,
+        "controlRate": 0.6666666666666666
+      },
+      {
+        "lo": 0.7,
+        "hi": 0.8,
+        "n": 6,
+        "controls": 3,
+        "breaking": 3,
+        "controlRate": 0.5
+      },
+      {
+        "lo": 0.8,
+        "hi": 0.9,
+        "n": 7,
+        "controls": 1,
+        "breaking": 6,
+        "controlRate": 0.14285714285714285
+      },
+      {
+        "lo": 0.9,
+        "hi": 1.0001,
+        "n": 13,
+        "controls": 9,
+        "breaking": 4,
+        "controlRate": 0.6923076923076923
+      }
+    ],
+    "frozen": {
+      "jev062": {
+        "threshold": 0.62,
+        "autoMerged": 30,
+        "precision": 0.5,
+        "coverage": 0.16216216216216217,
+        "unsafe": 15,
+        "breakingRecall": 0.85,
+        "ids": [
+          "ood-break-DeontewattsV1_Ethos-Aegis--415eb05ce0",
+          "ood-break-MixinNetwork_android-app-5810a04412",
+          "ood-break-RedHatInsights_sources-api-go-64652fb899",
+          "ood-break-rajat-wyrm_intelliview-orchestrator-537cb15140",
+          "ood-break-nla_nla-arclight-e1efbabd94",
+          "ood-break-ARCoder181105_funcatlas-f6356353aa",
+          "ood-break-zooniverse_front-end-monorepo-af5eca12ea",
+          "ood-break-Yeshwanth-kr_govt-image-compressor-2634032d9f",
+          "ood-break-netdata_netdata-5a5263188b",
+          "ood-break-navikt_meroppfolging-frontend-01e3234696",
+          "ood-break-navikt_dialogmote-frontend-db4f2eeb47",
+          "ood-break-shivbera18_quiz-repo-2558476011",
+          "ood-break-nairuby_duka-f85d6077c1",
+          "ood-break-otterscale_otterscale-1055288c2e",
+          "ood-break-toxicbishop_Portfolio-4-c243d2c191",
+          "ood-ctrl-abenassi_calculadora-inflacion-ar-8",
+          "ood-ctrl-dlunch_wie-1427",
+          "ood-ctrl-kestra-io_plugin-tika-91",
+          "ood-ctrl-SKB-CGN_ioBroker.energiefluss-erweitert-529",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-47",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-45",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-43",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-42",
+          "ood-ctrl-pycabbage_brave-search-mcp-remote-8",
+          "ood-ctrl-gocd_gocd-14608",
+          "ood-ctrl-ivopogace_riviera-sunbed-booking-1091",
+          "ood-ctrl-ivopogace_riviera-sunbed-booking-1087",
+          "ood-ctrl-ivopogace_riviera-sunbed-booking-1086",
+          "ood-ctrl-mdn_dex-524",
+          "ood-ctrl-opensquare-network_subsquare-7526"
+        ]
+      },
+      "jev100": {
+        "threshold": 1,
+        "autoMerged": 0,
+        "precision": 1,
+        "coverage": 0,
+        "unsafe": 0,
+        "breakingRecall": 1,
+        "ids": []
+      },
+      "ds090": {
+        "threshold": 0.9,
+        "autoMerged": 10,
+        "precision": 0.7,
+        "coverage": 0.05405405405405406,
+        "unsafe": 3,
+        "breakingRecall": 0.97,
+        "ids": [
+          "ood-break-ARCoder181105_funcatlas-f6356353aa",
+          "ood-break-navikt_dialogmote-frontend-db4f2eeb47",
+          "ood-break-shivbera18_quiz-repo-2558476011",
+          "ood-ctrl-abenassi_calculadora-inflacion-ar-8",
+          "ood-ctrl-SKB-CGN_ioBroker.energiefluss-erweitert-529",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-43",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-42",
+          "ood-ctrl-gocd_gocd-14608",
+          "ood-ctrl-mdn_dex-524",
+          "ood-ctrl-gabrielecabrini_portfolio-12"
+        ]
+      },
+      "rules100": {
+        "threshold": 1,
+        "autoMerged": 69,
+        "precision": 0.5507246376811594,
+        "coverage": 0.372972972972973,
+        "unsafe": 31,
+        "breakingRecall": 0.69,
+        "ids": [
+          "ood-break-DeontewattsV1_Ethos-Aegis--415eb05ce0",
+          "ood-break-MixinNetwork_android-app-5810a04412",
+          "ood-break-uber_submitqueue-86f141e12f",
+          "ood-break-RedHatInsights_sources-api-go-64652fb899",
+          "ood-break-get-convex_caddy-consul-upstreams-ed7586ae54",
+          "ood-break-KennispuntTwente_KWALLM-ceeef14aa8",
+          "ood-break-rajat-wyrm_intelliview-orchestrator-537cb15140",
+          "ood-break-vacs-project_vacs-16b9176efc",
+          "ood-break-nla_nla-arclight-e1efbabd94",
+          "ood-break-PCGen_pcgen-93651ee50d",
+          "ood-break-ARCoder181105_funcatlas-f6356353aa",
+          "ood-break-oslc-op_refimpl-6fdae3ae12",
+          "ood-break-zooniverse_front-end-monorepo-af5eca12ea",
+          "ood-break-Yeshwanth-kr_govt-image-compressor-2634032d9f",
+          "ood-break-netdata_netdata-5a5263188b",
+          "ood-break-govuk-one-login_data-vocab-af89d4c784",
+          "ood-break-microsoft_vscode-java-pack-2d38a11cd7",
+          "ood-break-gocd_gocd-73ad808c10",
+          "ood-break-thinkAmi_railroads-4b098d915e",
+          "ood-break-LibreTexts_conductor-9264e3b863",
+          "ood-break-gravitl_netmaker-1c02667d78",
+          "ood-break-navikt_meroppfolging-frontend-01e3234696",
+          "ood-break-ivopogace_riviera-sunbed-booking-19ab9d6f88",
+          "ood-break-SunilKumarKV_chessPlay-97c8de834e",
+          "ood-break-minghuaw_fe2o3-amqp-33b059f508",
+          "ood-break-navikt_dialogmote-frontend-db4f2eeb47",
+          "ood-break-shivbera18_quiz-repo-2558476011",
+          "ood-break-nairuby_duka-f85d6077c1",
+          "ood-break-otterscale_otterscale-1055288c2e",
+          "ood-break-Slijeff_my-website-588b34e2ea",
+          "ood-break-toxicbishop_Portfolio-4-c243d2c191",
+          "ood-ctrl-MixinNetwork_android-app-6674",
+          "ood-ctrl-MixinNetwork_android-app-6671",
+          "ood-ctrl-MixinNetwork_android-app-6667",
+          "ood-ctrl-abenassi_calculadora-inflacion-ar-8",
+          "ood-ctrl-dlunch_wie-1431",
+          "ood-ctrl-dlunch_wie-1427",
+          "ood-ctrl-kestra-io_plugin-tika-91",
+          "ood-ctrl-ministryofjustice_hmpps-book-secure-move-frontend-3648",
+          "ood-ctrl-get-convex_caddy-consul-upstreams-8",
+          "ood-ctrl-SKB-CGN_ioBroker.energiefluss-erweitert-531",
+          "ood-ctrl-SKB-CGN_ioBroker.energiefluss-erweitert-529",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-47",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-45",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-43",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-42",
+          "ood-ctrl-govuk-one-login_data-vocab-284",
+          "ood-ctrl-pycabbage_brave-search-mcp-remote-8",
+          "ood-ctrl-gocd_gocd-14610",
+          "ood-ctrl-gocd_gocd-14608",
+          "ood-ctrl-LibreTexts_conductor-242",
+          "ood-ctrl-ivopogace_riviera-sunbed-booking-1091",
+          "ood-ctrl-ivopogace_riviera-sunbed-booking-1087",
+          "ood-ctrl-ivopogace_riviera-sunbed-booking-1086",
+          "ood-ctrl-ivopogace_riviera-sunbed-booking-1085",
+          "ood-ctrl-mdn_dex-524",
+          "ood-ctrl-mdn_dex-523",
+          "ood-ctrl-mdn_dex-521",
+          "ood-ctrl-mdn_dex-520",
+          "ood-ctrl-ChelseaKR_family-greenhouse-181",
+          "ood-ctrl-ChelseaKR_family-greenhouse-180",
+          "ood-ctrl-navikt_dialogmote-frontend-284",
+          "ood-ctrl-otterscale_otterscale-53",
+          "ood-ctrl-ItsSunnyMonster_averiesque.com-63",
+          "ood-ctrl-ItsSunnyMonster_averiesque.com-65",
+          "ood-ctrl-opensquare-network_subsquare-7527",
+          "ood-ctrl-opensquare-network_subsquare-7526",
+          "ood-ctrl-gabrielecabrini_portfolio-12",
+          "ood-ctrl-gabrielecabrini_portfolio-11"
+        ]
+      }
+    }
+  },
+  "reportedComparison": {
+    "jevAuroc": {
+      "reported": 0.6052352941176471,
+      "recomputed": 0.6052352941176471
+    },
+    "jevAP": {
+      "reported": 0.5096183964972206,
+      "recomputed": 0.5096183964972206
+    },
+    "dsGatedAuroc": {
+      "reported": 0.5341764705882353,
+      "recomputed": 0.5341764705882353
+    },
+    "rulesAuroc": {
+      "reported": 0.5685294117647058,
+      "recomputed": 0.5685294117647058
+    },
+    "jev062precision": {
+      "reported": 0.5,
+      "recomputed": 0.5
+    },
+    "jev062auto": {
+      "reported": 30,
+      "recomputed": 30
+    }
+  },
+  "maxDelta": 0,
+  "labelTrust": {
+    "strong": 6,
+    "proximate": 79,
+    "ambiguous": 15
+  },
+  "stateSummary": {
+    "total": 100,
+    "resolved": 91,
+    "synthesized": 9,
+    "titleLeaks": 0,
+    "withBody": 89,
+    "withChangelog": 87,
+    "withOutcomeTokenSomewhere": 60
+  },
+  "dataQuality": {
+    "breakingWithQuotedVersion": 26,
+    "examples": [
+      {
+        "id": "ood-break-DeontewattsV1_Ethos-Aegis--415eb05ce0",
+        "previousVersion": "4.22.3",
+        "newVersion": "4.23.13\""
+      },
+      {
+        "id": "ood-break-QinCai-rui_MeshTalk-872492a3ce",
+        "previousVersion": "0.25.10",
+        "newVersion": "0.27.0\""
+      },
+      {
+        "id": "ood-break-MySharee_MyShare-673b7a729c",
+        "previousVersion": "6.10.1",
+        "newVersion": "9.0.1\""
+      },
+      {
+        "id": "ood-break-kestra-io_plugin-tika-cb90f672ab",
+        "previousVersion": "3.3.2",
+        "newVersion": "4.0.0\""
+      },
+      {
+        "id": "ood-break-UI5_linter-3c75124c39",
+        "previousVersion": "11.1.1",
+        "newVersion": "12.0.1\""
+      },
+      {
+        "id": "ood-break-darain24_ascend-a7a73468f9",
+        "previousVersion": "6.19.3",
+        "newVersion": "7.9.1\""
+      },
+      {
+        "id": "ood-break-MathiasDevelopes_inskewl-0af652df35",
+        "previousVersion": "6.0.3",
+        "newVersion": "7.0.2\""
+      },
+      {
+        "id": "ood-break-SKB-CGN_ioBroker.energiefluss-erweitert-70f0122a51",
+        "previousVersion": "5.9.3",
+        "newVersion": "7.0.2\""
+      },
+      {
+        "id": "ood-break-nasa_opera-sds-bach-ui-8696733b04",
+        "previousVersion": "5.98.0",
+        "newVersion": "5.105.0\""
+      },
+      {
+        "id": "ood-break-rajat-wyrm_intelliview-orchestrator-537cb15140",
+        "previousVersion": "6.0.0",
+        "newVersion": "6.3.0\""
+      }
+    ]
+  },
+  "jev062BreakingTable": [
+    {
+      "id": "ood-break-DeontewattsV1_Ethos-Aegis--415eb05ce0",
+      "repo": "DeontewattsV1/Ethos-Aegis-",
+      "ecosystem": "javascript",
+      "dependency": "tsx",
+      "previousVersion": "4.22.3",
+      "newVersion": "4.23.13\"",
+      "updateType": "minor",
+      "gold": "REQUIRE_REVIEW",
+      "resolved": true,
+      "originalPrNumber": 282,
+      "originalPrMergedAt": "2026-09-16T13:51:51Z",
+      "revertCommit": "415eb05ce0a3f8ca77c721c4dc85f8cbfd2db64c",
+      "revertCommitUrl": "https://github.com/DeontewattsV1/Ethos-Aegis-/commit/415eb05ce0a3f8ca77c721c4dc85f8cbfd2db64c",
+      "revertedAt": "2026-09-16T06:52:21.000-07:00",
+      "delayDays": 0,
+      "revertSummary": "Revert of this exact update within 14 days; no explicit cause stated.",
+      "namesDep": true,
+      "namesVersions": true,
+      "grouped": false,
+      "explicit": false,
+      "trust": "proximate",
+      "jev": {
+        "decision": "AUTO_MERGE",
+        "pAutoMerge": 0.97,
+        "probabilities": {
+          "AUTO_MERGE": 0.97,
+          "HOLD": 0.01,
+          "REQUIRE_REVIEW": 0.02
+        }
+      },
+      "deepseek": {
+        "decision": "AUTO_MERGE",
+        "confidence": 0.85,
+        "autoMergeScore": 0.85
+      },
+      "rules": {
+        "decision": "AUTO_MERGE"
+      },
+      "frozen062AutoMerged": true
+    },
+    {
+      "id": "ood-break-MixinNetwork_android-app-5810a04412",
+      "repo": "MixinNetwork/android-app",
+      "ecosystem": "java",
+      "dependency": "com.bugsnag:bugsnag-android",
+      "previousVersion": "6.26.1",
+      "newVersion": "6.27.0",
+      "updateType": "minor",
+      "gold": "REQUIRE_REVIEW",
+      "resolved": true,
+      "originalPrNumber": 6623,
+      "originalPrMergedAt": "2026-08-31T06:55:05Z",
+      "revertCommit": "5810a04412d056130b9cefde9333a5ba48fe6b8d",
+      "revertCommitUrl": "https://github.com/MixinNetwork/android-app/commit/5810a04412d056130b9cefde9333a5ba48fe6b8d",
+      "revertedAt": "2026-09-10T15:03:42.000+04:00",
+      "delayDays": 10,
+      "revertSummary": "Revert of this exact update within 14 days; no explicit cause stated.",
+      "namesDep": true,
+      "namesVersions": true,
+      "grouped": false,
+      "explicit": false,
+      "trust": "proximate",
+      "jev": {
+        "decision": "AUTO_MERGE",
+        "pAutoMerge": 0.77,
+        "probabilities": {
+          "AUTO_MERGE": 0.77,
+          "HOLD": 0.02,
+          "REQUIRE_REVIEW": 0.21
+        }
+      },
+      "deepseek": {
+        "decision": "AUTO_MERGE",
+        "confidence": 0.8,
+        "autoMergeScore": 0.8
+      },
+      "rules": {
+        "decision": "AUTO_MERGE"
+      },
+      "frozen062AutoMerged": true
+    },
+    {
+      "id": "ood-break-RedHatInsights_sources-api-go-64652fb899",
+      "repo": "RedHatInsights/sources-api-go",
+      "ecosystem": "go",
+      "dependency": "gorm.io/driver/postgres",
+      "previousVersion": "1.6.0",
+      "newVersion": "1.6.2",
+      "updateType": "patch",
+      "gold": "REQUIRE_REVIEW",
+      "resolved": true,
+      "originalPrNumber": 1323,
+      "originalPrMergedAt": "2026-08-12T15:16:24Z",
+      "revertCommit": "64652fb8993c1b40c2ee31280a8831c7b9b7bd3b",
+      "revertCommitUrl": "https://github.com/RedHatInsights/sources-api-go/commit/64652fb8993c1b40c2ee31280a8831c7b9b7bd3b",
+      "revertedAt": "2026-08-19T09:43:17.000-05:00",
+      "delayDays": 7,
+      "revertSummary": "Revert of this exact update within 14 days; no explicit cause stated.",
+      "namesDep": true,
+      "namesVersions": true,
+      "grouped": false,
+      "explicit": false,
+      "trust": "proximate",
+      "jev": {
+        "decision": "AUTO_MERGE",
+        "pAutoMerge": 0.62,
+        "probabilities": {
+          "AUTO_MERGE": 0.62,
+          "HOLD": 0.02,
+          "REQUIRE_REVIEW": 0.36
+        }
+      },
+      "deepseek": {
+        "decision": "HUMAN_REVIEW",
+        "confidence": 0.6,
+        "autoMergeScore": null
+      },
+      "rules": {
+        "decision": "AUTO_MERGE"
+      },
+      "frozen062AutoMerged": true
+    },
+    {
+      "id": "ood-break-rajat-wyrm_intelliview-orchestrator-537cb15140",
+      "repo": "rajat-wyrm/intelliview-orchestrator",
+      "ecosystem": "python",
+      "dependency": "pytest-cov",
+      "previousVersion": "6.0.0",
+      "newVersion": "6.3.0\"",
+      "updateType": "minor",
+      "gold": "REQUIRE_REVIEW",
+      "resolved": true,
+      "originalPrNumber": 845,
+      "originalPrMergedAt": "2026-08-20T18:01:15Z",
+      "revertCommit": "537cb151401d31e18b4ce6563a09b43e79983d96",
+      "revertCommitUrl": "https://github.com/rajat-wyrm/intelliview-orchestrator/commit/537cb151401d31e18b4ce6563a09b43e79983d96",
+      "revertedAt": "2026-08-20T23:56:10.000+05:30",
+      "delayDays": 0,
+      "revertSummary": "Revert of this exact update within 14 days; no explicit cause stated.",
+      "namesDep": true,
+      "namesVersions": true,
+      "grouped": false,
+      "explicit": false,
+      "trust": "proximate",
+      "jev": {
+        "decision": "AUTO_MERGE",
+        "pAutoMerge": 0.83,
+        "probabilities": {
+          "AUTO_MERGE": 0.83,
+          "HOLD": 0.01,
+          "REQUIRE_REVIEW": 0.16
+        }
+      },
+      "deepseek": {
+        "decision": "AUTO_MERGE",
+        "confidence": 0.85,
+        "autoMergeScore": 0.85
+      },
+      "rules": {
+        "decision": "AUTO_MERGE"
+      },
+      "frozen062AutoMerged": true
+    },
+    {
+      "id": "ood-break-nla_nla-arclight-e1efbabd94",
+      "repo": "nla/nla-arclight",
+      "ecosystem": "ruby",
+      "dependency": "selenium-webdriver",
+      "previousVersion": "4.45.0",
+      "newVersion": "4.46.0",
+      "updateType": "minor",
+      "gold": "REQUIRE_REVIEW",
+      "resolved": true,
+      "originalPrNumber": 902,
+      "originalPrMergedAt": "2026-07-16T00:41:52Z",
+      "revertCommit": "e1efbabd9492abe05ba99e34764aac1c71fccb40",
+      "revertCommitUrl": "https://github.com/nla/nla-arclight/commit/e1efbabd9492abe05ba99e34764aac1c71fccb40",
+      "revertedAt": "2026-07-16T10:54:25.000+10:00",
+      "delayDays": 0,
+      "revertSummary": "Revert of this exact update within 14 days; no explicit cause stated.",
+      "namesDep": true,
+      "namesVersions": true,
+      "grouped": false,
+      "explicit": false,
+      "trust": "proximate",
+      "jev": {
+        "decision": "AUTO_MERGE",
+        "pAutoMerge": 0.75,
+        "probabilities": {
+          "AUTO_MERGE": 0.75,
+          "HOLD": 0.01,
+          "REQUIRE_REVIEW": 0.24
+        }
+      },
+      "deepseek": {
+        "decision": "AUTO_MERGE",
+        "confidence": 0.75,
+        "autoMergeScore": 0.75
+      },
+      "rules": {
+        "decision": "AUTO_MERGE"
+      },
+      "frozen062AutoMerged": true
+    },
+    {
+      "id": "ood-break-ARCoder181105_funcatlas-f6356353aa",
+      "repo": "ARCoder181105/funcatlas",
+      "ecosystem": "javascript",
+      "dependency": "react",
+      "previousVersion": "19.2.7",
+      "newVersion": "19.2.8\"",
+      "updateType": "patch",
+      "gold": "REQUIRE_REVIEW",
+      "resolved": true,
+      "originalPrNumber": 16,
+      "originalPrMergedAt": "2026-07-21T18:43:17Z",
+      "revertCommit": "f6356353aacad8cd390ddaf82b24e244f4dce7f0",
+      "revertCommitUrl": "https://github.com/ARCoder181105/funcatlas/commit/f6356353aacad8cd390ddaf82b24e244f4dce7f0",
+      "revertedAt": "2026-07-22T00:22:42.000+05:30",
+      "delayDays": 0,
+      "revertSummary": "Revert of this exact update within 14 days; no explicit cause stated.",
+      "namesDep": true,
+      "namesVersions": true,
+      "grouped": false,
+      "explicit": false,
+      "trust": "proximate",
+      "jev": {
+        "decision": "AUTO_MERGE",
+        "pAutoMerge": 0.95,
+        "probabilities": {
+          "AUTO_MERGE": 0.95,
+          "HOLD": 0.01,
+          "REQUIRE_REVIEW": 0.04
+        }
+      },
+      "deepseek": {
+        "decision": "AUTO_MERGE",
+        "confidence": 0.9,
+        "autoMergeScore": 0.9
+      },
+      "rules": {
+        "decision": "AUTO_MERGE"
+      },
+      "frozen062AutoMerged": true
+    },
+    {
+      "id": "ood-break-zooniverse_front-end-monorepo-af5eca12ea",
+      "repo": "zooniverse/front-end-monorepo",
+      "ecosystem": "javascript",
+      "dependency": "vitest",
+      "previousVersion": "3.1.4",
+      "newVersion": "3.2.6",
+      "updateType": "minor",
+      "gold": "REQUIRE_REVIEW",
+      "resolved": true,
+      "originalPrNumber": 7481,
+      "originalPrMergedAt": "2026-06-15T12:09:40Z",
+      "revertCommit": "af5eca12ea65ea3d91c133b9c915ecb6857c7e0a",
+      "revertCommitUrl": "https://github.com/zooniverse/front-end-monorepo/commit/af5eca12ea65ea3d91c133b9c915ecb6857c7e0a",
+      "revertedAt": "2026-06-15T13:17:34.000-05:00",
+      "delayDays": 0,
+      "revertSummary": "Revert of this exact update within 14 days; no explicit cause stated.",
+      "namesDep": true,
+      "namesVersions": true,
+      "grouped": false,
+      "explicit": false,
+      "trust": "proximate",
+      "jev": {
+        "decision": "AUTO_MERGE",
+        "pAutoMerge": 0.88,
+        "probabilities": {
+          "AUTO_MERGE": 0.88,
+          "HOLD": 0.01,
+          "REQUIRE_REVIEW": 0.11
+        }
+      },
+      "deepseek": {
+        "decision": "AUTO_MERGE",
+        "confidence": 0.8,
+        "autoMergeScore": 0.8
+      },
+      "rules": {
+        "decision": "AUTO_MERGE"
+      },
+      "frozen062AutoMerged": true
+    },
+    {
+      "id": "ood-break-Yeshwanth-kr_govt-image-compressor-2634032d9f",
+      "repo": "Yeshwanth-kr/govt-image-compressor",
+      "ecosystem": "javascript",
+      "dependency": "eslint",
+      "previousVersion": "10.6.0",
+      "newVersion": "10.7.0\"",
+      "updateType": "minor",
+      "gold": "REQUIRE_REVIEW",
+      "resolved": true,
+      "originalPrNumber": 14,
+      "originalPrMergedAt": "2026-07-13T13:24:52Z",
+      "revertCommit": "2634032d9f6a5f8d1e80aa1b3f7ec40c5562a3ff",
+      "revertCommitUrl": "https://github.com/Yeshwanth-kr/govt-image-compressor/commit/2634032d9f6a5f8d1e80aa1b3f7ec40c5562a3ff",
+      "revertedAt": "2026-07-13T19:31:14.000+05:30",
+      "delayDays": 0,
+      "revertSummary": "Revert of this exact update within 14 days; no explicit cause stated.",
+      "namesDep": true,
+      "namesVersions": true,
+      "grouped": false,
+      "explicit": false,
+      "trust": "proximate",
+      "jev": {
+        "decision": "AUTO_MERGE",
+        "pAutoMerge": 0.85,
+        "probabilities": {
+          "AUTO_MERGE": 0.85,
+          "HOLD": 0.01,
+          "REQUIRE_REVIEW": 0.14
+        }
+      },
+      "deepseek": {
+        "decision": "AUTO_MERGE",
+        "confidence": 0.85,
+        "autoMergeScore": 0.85
+      },
+      "rules": {
+        "decision": "AUTO_MERGE"
+      },
+      "frozen062AutoMerged": true
+    },
+    {
+      "id": "ood-break-netdata_netdata-5a5263188b",
+      "repo": "netdata/netdata",
+      "ecosystem": "go",
+      "dependency": "github.com/microsoft/go-mssqldb",
+      "previousVersion": "1.9.7",
+      "newVersion": "1.9.8",
+      "updateType": "patch",
+      "gold": "REQUIRE_REVIEW",
+      "resolved": true,
+      "originalPrNumber": 21865,
+      "originalPrMergedAt": "2026-03-04T07:37:50Z",
+      "revertCommit": "5a5263188b97428e27cc8a31054f9ef52706cbbc",
+      "revertCommitUrl": "https://github.com/netdata/netdata/commit/5a5263188b97428e27cc8a31054f9ef52706cbbc",
+      "revertedAt": "2026-03-04T11:48:01.000+02:00",
+      "delayDays": 0,
+      "revertSummary": "Revert with no explicit cause, or a grouped/multi-dependency revert.",
+      "namesDep": true,
+      "namesVersions": true,
+      "grouped": true,
+      "explicit": false,
+      "trust": "ambiguous",
+      "jev": {
+        "decision": "AUTO_MERGE",
+        "pAutoMerge": 0.75,
+        "probabilities": {
+          "AUTO_MERGE": 0.75,
+          "HOLD": 0.02,
+          "REQUIRE_REVIEW": 0.23
+        }
+      },
+      "deepseek": {
+        "decision": "AUTO_MERGE",
+        "confidence": 0.85,
+        "autoMergeScore": 0.85
+      },
+      "rules": {
+        "decision": "AUTO_MERGE"
+      },
+      "frozen062AutoMerged": true
+    },
+    {
+      "id": "ood-break-navikt_meroppfolging-frontend-01e3234696",
+      "repo": "navikt/meroppfolging-frontend",
+      "ecosystem": "javascript",
+      "dependency": "next",
+      "previousVersion": "16.3.0",
+      "newVersion": "16.3.1",
+      "updateType": "patch",
+      "gold": "REQUIRE_REVIEW",
+      "resolved": true,
+      "originalPrNumber": 1951,
+      "originalPrMergedAt": "2026-08-21T13:20:13Z",
+      "revertCommit": "01e3234696f1eb9e619920abe99a390f346cd619",
+      "revertCommitUrl": "https://github.com/navikt/meroppfolging-frontend/commit/01e3234696f1eb9e619920abe99a390f346cd619",
+      "revertedAt": "2026-08-24T06:30:04.000Z",
+      "delayDays": 3,
+      "revertSummary": "Revert with no explicit cause, or a grouped/multi-dependency revert.",
+      "namesDep": true,
+      "namesVersions": true,
+      "grouped": true,
+      "explicit": false,
+      "trust": "ambiguous",
+      "jev": {
+        "decision": "AUTO_MERGE",
+        "pAutoMerge": 0.83,
+        "probabilities": {
+          "AUTO_MERGE": 0.83,
+          "HOLD": 0.01,
+          "REQUIRE_REVIEW": 0.16
+        }
+      },
+      "deepseek": {
+        "decision": "AUTO_MERGE",
+        "confidence": 0.85,
+        "autoMergeScore": 0.85
+      },
+      "rules": {
+        "decision": "AUTO_MERGE"
+      },
+      "frozen062AutoMerged": true
+    },
+    {
+      "id": "ood-break-navikt_dialogmote-frontend-db4f2eeb47",
+      "repo": "navikt/dialogmote-frontend",
+      "ecosystem": "javascript",
+      "dependency": "open",
+      "previousVersion": "11.0.0",
+      "newVersion": "11.0.1",
+      "updateType": "patch",
+      "gold": "REQUIRE_REVIEW",
+      "resolved": true,
+      "originalPrNumber": 1934,
+      "originalPrMergedAt": "2026-08-21T12:44:04Z",
+      "revertCommit": "db4f2eeb4736603e446338c898b773870e810359",
+      "revertCommitUrl": "https://github.com/navikt/dialogmote-frontend/commit/db4f2eeb4736603e446338c898b773870e810359",
+      "revertedAt": "2026-08-24T07:27:11.000+02:00",
+      "delayDays": 3,
+      "revertSummary": "Revert of this exact update within 14 days; no explicit cause stated.",
+      "namesDep": true,
+      "namesVersions": true,
+      "grouped": false,
+      "explicit": false,
+      "trust": "proximate",
+      "jev": {
+        "decision": "AUTO_MERGE",
+        "pAutoMerge": 0.98,
+        "probabilities": {
+          "AUTO_MERGE": 0.98,
+          "HOLD": 0,
+          "REQUIRE_REVIEW": 0.02
+        }
+      },
+      "deepseek": {
+        "decision": "AUTO_MERGE",
+        "confidence": 0.95,
+        "autoMergeScore": 0.95
+      },
+      "rules": {
+        "decision": "AUTO_MERGE"
+      },
+      "frozen062AutoMerged": true
+    },
+    {
+      "id": "ood-break-shivbera18_quiz-repo-2558476011",
+      "repo": "shivbera18/quiz-repo",
+      "ecosystem": "javascript",
+      "dependency": "vitest",
+      "previousVersion": "4.1.10",
+      "newVersion": "4.1.11",
+      "updateType": "patch",
+      "gold": "REQUIRE_REVIEW",
+      "resolved": true,
+      "originalPrNumber": 37,
+      "originalPrMergedAt": "2026-09-16T18:25:49Z",
+      "revertCommit": "2558476011c2cd7e9a306a4678905ad3f8d413d7",
+      "revertCommitUrl": "https://github.com/shivbera18/quiz-repo/commit/2558476011c2cd7e9a306a4678905ad3f8d413d7",
+      "revertedAt": "2026-09-17T16:15:41.000+05:30",
+      "delayDays": 1,
+      "revertSummary": "Revert of this exact update within 14 days; no explicit cause stated.",
+      "namesDep": true,
+      "namesVersions": true,
+      "grouped": false,
+      "explicit": false,
+      "trust": "proximate",
+      "jev": {
+        "decision": "AUTO_MERGE",
+        "pAutoMerge": 0.86,
+        "probabilities": {
+          "AUTO_MERGE": 0.86,
+          "HOLD": 0.01,
+          "REQUIRE_REVIEW": 0.13
+        }
+      },
+      "deepseek": {
+        "decision": "AUTO_MERGE",
+        "confidence": 0.9,
+        "autoMergeScore": 0.9
+      },
+      "rules": {
+        "decision": "AUTO_MERGE"
+      },
+      "frozen062AutoMerged": true
+    },
+    {
+      "id": "ood-break-nairuby_duka-f85d6077c1",
+      "repo": "nairuby/duka",
+      "ecosystem": "ruby",
+      "dependency": "selenium-webdriver",
+      "previousVersion": "4.48.0",
+      "newVersion": "4.49.0\"",
+      "updateType": "minor",
+      "gold": "REQUIRE_REVIEW",
+      "resolved": true,
+      "originalPrNumber": 179,
+      "originalPrMergedAt": "2026-09-14T18:55:38Z",
+      "revertCommit": "f85d6077c18b4ba6658d9679cebdb71136ff5d6f",
+      "revertCommitUrl": "https://github.com/nairuby/duka/commit/f85d6077c18b4ba6658d9679cebdb71136ff5d6f",
+      "revertedAt": "2026-09-14T23:40:21.000+03:00",
+      "delayDays": 0,
+      "revertSummary": "Revert of this exact update within 14 days; no explicit cause stated.",
+      "namesDep": true,
+      "namesVersions": true,
+      "grouped": false,
+      "explicit": false,
+      "trust": "proximate",
+      "jev": {
+        "decision": "AUTO_MERGE",
+        "pAutoMerge": 0.64,
+        "probabilities": {
+          "AUTO_MERGE": 0.64,
+          "HOLD": 0.02,
+          "REQUIRE_REVIEW": 0.34
+        }
+      },
+      "deepseek": {
+        "decision": "AUTO_MERGE",
+        "confidence": 0.8,
+        "autoMergeScore": 0.8
+      },
+      "rules": {
+        "decision": "AUTO_MERGE"
+      },
+      "frozen062AutoMerged": true
+    },
+    {
+      "id": "ood-break-otterscale_otterscale-1055288c2e",
+      "repo": "otterscale/otterscale",
+      "ecosystem": "javascript",
+      "dependency": "@bufbuild/buf",
+      "previousVersion": "1.72.0",
+      "newVersion": "1.73.0",
+      "updateType": "minor",
+      "gold": "REQUIRE_REVIEW",
+      "resolved": true,
+      "originalPrNumber": 284,
+      "originalPrMergedAt": "2026-09-17T10:22:23Z",
+      "revertCommit": "1055288c2e48b8611af6e7fb33f6731ba2399b0e",
+      "revertCommitUrl": "https://github.com/otterscale/otterscale/commit/1055288c2e48b8611af6e7fb33f6731ba2399b0e",
+      "revertedAt": "2026-09-17T18:23:48.000+08:00",
+      "delayDays": 0,
+      "revertSummary": "Revert of this exact update within 14 days; no explicit cause stated.",
+      "namesDep": true,
+      "namesVersions": true,
+      "grouped": false,
+      "explicit": false,
+      "trust": "proximate",
+      "jev": {
+        "decision": "AUTO_MERGE",
+        "pAutoMerge": 0.85,
+        "probabilities": {
+          "AUTO_MERGE": 0.85,
+          "HOLD": 0.01,
+          "REQUIRE_REVIEW": 0.14
+        }
+      },
+      "deepseek": {
+        "decision": "AUTO_MERGE",
+        "confidence": 0.85,
+        "autoMergeScore": 0.85
+      },
+      "rules": {
+        "decision": "AUTO_MERGE"
+      },
+      "frozen062AutoMerged": true
+    },
+    {
+      "id": "ood-break-toxicbishop_Portfolio-4-c243d2c191",
+      "repo": "toxicbishop/Portfolio-4",
+      "ecosystem": "javascript",
+      "dependency": "lucide-react",
+      "previousVersion": "1.28.0",
+      "newVersion": "1.31.0\"",
+      "updateType": "minor",
+      "gold": "REQUIRE_REVIEW",
+      "resolved": true,
+      "originalPrNumber": 14,
+      "originalPrMergedAt": "2026-08-18T01:37:21Z",
+      "revertCommit": "c243d2c191765221e4d3af080a6ee9132da38cbb",
+      "revertCommitUrl": "https://github.com/toxicbishop/Portfolio-4/commit/c243d2c191765221e4d3af080a6ee9132da38cbb",
+      "revertedAt": "2026-08-18T07:07:36.000+05:30",
+      "delayDays": 0,
+      "revertSummary": "Revert of this exact update within 14 days; no explicit cause stated.",
+      "namesDep": true,
+      "namesVersions": true,
+      "grouped": false,
+      "explicit": false,
+      "trust": "proximate",
+      "jev": {
+        "decision": "AUTO_MERGE",
+        "pAutoMerge": 0.96,
+        "probabilities": {
+          "AUTO_MERGE": 0.96,
+          "HOLD": 0.01,
+          "REQUIRE_REVIEW": 0.03
+        }
+      },
+      "deepseek": {
+        "decision": "AUTO_MERGE",
+        "confidence": 0.85,
+        "autoMergeScore": 0.85
+      },
+      "rules": {
+        "decision": "AUTO_MERGE"
+      },
+      "frozen062AutoMerged": true
+    }
+  ],
+  "jev062SafeTable": [
+    {
+      "id": "ood-ctrl-abenassi_calculadora-inflacion-ar-8",
+      "repo": "abenassi/calculadora-inflacion-ar",
+      "dependency": "@types/node",
+      "previousVersion": "26.4.0",
+      "newVersion": "26.5.0",
+      "updateType": "minor",
+      "jev": "AUTO_MERGE",
+      "pAutoMerge": 0.8200000000000001,
+      "deepseek": "AUTO_MERGE",
+      "dsConfidence": 0.9,
+      "rules": "AUTO_MERGE"
+    },
+    {
+      "id": "ood-ctrl-dlunch_wie-1427",
+      "repo": "dlunch/wie",
+      "dependency": "lucide",
+      "previousVersion": "1.44.0",
+      "newVersion": "1.45.0",
+      "updateType": "minor",
+      "jev": "AUTO_MERGE",
+      "pAutoMerge": 0.9,
+      "deepseek": "AUTO_MERGE",
+      "dsConfidence": 0.85,
+      "rules": "AUTO_MERGE"
+    },
+    {
+      "id": "ood-ctrl-kestra-io_plugin-tika-91",
+      "repo": "kestra-io/plugin-tika",
+      "dependency": "`cva6`",
+      "previousVersion": "9.3.0",
+      "newVersion": "include",
+      "updateType": "other",
+      "jev": "AUTO_MERGE",
+      "pAutoMerge": 0.72,
+      "deepseek": "HUMAN_REVIEW",
+      "dsConfidence": 0.6,
+      "rules": "AUTO_MERGE"
+    },
+    {
+      "id": "ood-ctrl-SKB-CGN_ioBroker.energiefluss-erweitert-529",
+      "repo": "SKB-CGN/ioBroker.energiefluss-erweitert",
+      "dependency": "@tsconfig/node22",
+      "previousVersion": "22.0.5",
+      "newVersion": "22.0.6",
+      "updateType": "patch",
+      "jev": "AUTO_MERGE",
+      "pAutoMerge": 0.93,
+      "deepseek": "AUTO_MERGE",
+      "dsConfidence": 0.9,
+      "rules": "AUTO_MERGE"
+    },
+    {
+      "id": "ood-ctrl-Yeshwanth-kr_govt-image-compressor-47",
+      "repo": "Yeshwanth-kr/govt-image-compressor",
+      "dependency": "vite",
+      "previousVersion": "8.2.2",
+      "newVersion": "8.3.0",
+      "updateType": "minor",
+      "jev": "AUTO_MERGE",
+      "pAutoMerge": 0.77,
+      "deepseek": "AUTO_MERGE",
+      "dsConfidence": 0.8,
+      "rules": "AUTO_MERGE"
+    },
+    {
+      "id": "ood-ctrl-Yeshwanth-kr_govt-image-compressor-45",
+      "repo": "Yeshwanth-kr/govt-image-compressor",
+      "dependency": "eslint",
+      "previousVersion": "10.9.1",
+      "newVersion": "10.10.0",
+      "updateType": "minor",
+      "jev": "AUTO_MERGE",
+      "pAutoMerge": 0.62,
+      "deepseek": "AUTO_MERGE",
+      "dsConfidence": 0.85,
+      "rules": "AUTO_MERGE"
+    },
+    {
+      "id": "ood-ctrl-Yeshwanth-kr_govt-image-compressor-43",
+      "repo": "Yeshwanth-kr/govt-image-compressor",
+      "dependency": "eslint-plugin-react-refresh",
+      "previousVersion": "0.5.5",
+      "newVersion": "0.5.6",
+      "updateType": "patch",
+      "jev": "AUTO_MERGE",
+      "pAutoMerge": 0.98,
+      "deepseek": "AUTO_MERGE",
+      "dsConfidence": 0.92,
+      "rules": "AUTO_MERGE"
+    },
+    {
+      "id": "ood-ctrl-Yeshwanth-kr_govt-image-compressor-42",
+      "repo": "Yeshwanth-kr/govt-image-compressor",
+      "dependency": "@types/react-dom",
+      "previousVersion": "19.2.5",
+      "newVersion": "19.2.7",
+      "updateType": "patch",
+      "jev": "AUTO_MERGE",
+      "pAutoMerge": 0.95,
+      "deepseek": "AUTO_MERGE",
+      "dsConfidence": 0.95,
+      "rules": "AUTO_MERGE"
+    },
+    {
+      "id": "ood-ctrl-pycabbage_brave-search-mcp-remote-8",
+      "repo": "pycabbage/brave-search-mcp-remote",
+      "dependency": "@types/node",
+      "previousVersion": "26.4.0",
+      "newVersion": "26.5.0",
+      "updateType": "minor",
+      "jev": "AUTO_MERGE",
+      "pAutoMerge": 0.75,
+      "deepseek": "AUTO_MERGE",
+      "dsConfidence": 0.85,
+      "rules": "AUTO_MERGE"
+    },
+    {
+      "id": "ood-ctrl-gocd_gocd-14608",
+      "repo": "gocd/gocd",
+      "dependency": "sass-embedded",
+      "previousVersion": "1.104.0",
+      "newVersion": "1.104.1",
+      "updateType": "patch",
+      "jev": "AUTO_MERGE",
+      "pAutoMerge": 0.9,
+      "deepseek": "AUTO_MERGE",
+      "dsConfidence": 0.9,
+      "rules": "AUTO_MERGE"
+    },
+    {
+      "id": "ood-ctrl-ivopogace_riviera-sunbed-booking-1091",
+      "repo": "ivopogace/riviera-sunbed-booking",
+      "dependency": "@stripe/stripe-js",
+      "previousVersion": "9.15.0",
+      "newVersion": "9.16.0",
+      "updateType": "minor",
+      "jev": "AUTO_MERGE",
+      "pAutoMerge": 0.92,
+      "deepseek": "AUTO_MERGE",
+      "dsConfidence": 0.85,
+      "rules": "AUTO_MERGE"
+    },
+    {
+      "id": "ood-ctrl-ivopogace_riviera-sunbed-booking-1087",
+      "repo": "ivopogace/riviera-sunbed-booking",
+      "dependency": "@angular/build",
+      "previousVersion": "22.1.6",
+      "newVersion": "22.1.8",
+      "updateType": "patch",
+      "jev": "AUTO_MERGE",
+      "pAutoMerge": 0.93,
+      "deepseek": "AUTO_MERGE",
+      "dsConfidence": 0.85,
+      "rules": "AUTO_MERGE"
+    },
+    {
+      "id": "ood-ctrl-ivopogace_riviera-sunbed-booking-1086",
+      "repo": "ivopogace/riviera-sunbed-booking",
+      "dependency": "typescript-eslint",
+      "previousVersion": "8.69.0",
+      "newVersion": "8.70.0",
+      "updateType": "minor",
+      "jev": "AUTO_MERGE",
+      "pAutoMerge": 0.67,
+      "deepseek": "AUTO_MERGE",
+      "dsConfidence": 0.85,
+      "rules": "AUTO_MERGE"
+    },
+    {
+      "id": "ood-ctrl-mdn_dex-524",
+      "repo": "mdn/dex",
+      "dependency": "@types/node",
+      "previousVersion": "24.13.3",
+      "newVersion": "24.13.5",
+      "updateType": "patch",
+      "jev": "AUTO_MERGE",
+      "pAutoMerge": 0.91,
+      "deepseek": "AUTO_MERGE",
+      "dsConfidence": 0.9,
+      "rules": "AUTO_MERGE"
+    },
+    {
+      "id": "ood-ctrl-opensquare-network_subsquare-7526",
+      "repo": "opensquare-network/subsquare",
+      "dependency": "vitest",
+      "previousVersion": "4.1.5",
+      "newVersion": "4.1.11",
+      "updateType": "patch",
+      "jev": "AUTO_MERGE",
+      "pAutoMerge": 0.94,
+      "deepseek": "AUTO_MERGE",
+      "dsConfidence": 0.85,
+      "rules": "AUTO_MERGE"
+    }
+  ],
+  "thresholdProvenance": [
+    {
+      "model": "Static rules",
+      "split": "repo-disjoint",
+      "devThreshold": 1,
+      "devAutoMerges": 0,
+      "heldOutPrecision": 1,
+      "heldOutCoverage": 0.19553072625698323,
+      "heldOutUnsafe": 0
+    },
+    {
+      "model": "Static rules",
+      "split": "repo-disjoint",
+      "devThreshold": 1,
+      "devAutoMerges": 0,
+      "heldOutPrecision": 1,
+      "heldOutCoverage": 0.19553072625698323,
+      "heldOutUnsafe": 0
+    },
+    {
+      "model": "Static rules",
+      "split": "time-ordered",
+      "devThreshold": 1,
+      "devAutoMerges": 0,
+      "heldOutPrecision": 1,
+      "heldOutCoverage": 0.3413897280966767,
+      "heldOutUnsafe": 0
+    },
+    {
+      "model": "Static rules",
+      "split": "time-ordered",
+      "devThreshold": 1,
+      "devAutoMerges": 0,
+      "heldOutPrecision": 1,
+      "heldOutCoverage": 0.3413897280966767,
+      "heldOutUnsafe": 0
+    },
+    {
+      "model": "~deepseek/deepseek-flash-latest",
+      "split": "repo-disjoint",
+      "devThreshold": 0.9,
+      "devAutoMerges": 5,
+      "heldOutPrecision": 1,
+      "heldOutCoverage": 0.013966480446927373,
+      "heldOutUnsafe": 0
+    },
+    {
+      "model": "~deepseek/deepseek-flash-latest",
+      "split": "repo-disjoint",
+      "devThreshold": 0.9,
+      "devAutoMerges": 5,
+      "heldOutPrecision": 1,
+      "heldOutCoverage": 0.013966480446927373,
+      "heldOutUnsafe": 0
+    },
+    {
+      "model": "~deepseek/deepseek-flash-latest",
+      "split": "time-ordered",
+      "devThreshold": 0.9,
+      "devAutoMerges": 1,
+      "heldOutPrecision": 1,
+      "heldOutCoverage": 0.027190332326283987,
+      "heldOutUnsafe": 0
+    },
+    {
+      "model": "~deepseek/deepseek-flash-latest",
+      "split": "time-ordered",
+      "devThreshold": 0.9,
+      "devAutoMerges": 1,
+      "heldOutPrecision": 1,
+      "heldOutCoverage": 0.027190332326283987,
+      "heldOutUnsafe": 0
+    },
+    {
+      "model": "Jev 1.13",
+      "split": "repo-disjoint",
+      "devThreshold": 0.62,
+      "devAutoMerges": 22,
+      "heldOutPrecision": 1,
+      "heldOutCoverage": 0.12011173184357542,
+      "heldOutUnsafe": 0
+    },
+    {
+      "model": "Jev 1.13",
+      "split": "repo-disjoint",
+      "devThreshold": 0.62,
+      "devAutoMerges": 22,
+      "heldOutPrecision": 1,
+      "heldOutCoverage": 0.12011173184357542,
+      "heldOutUnsafe": 0
+    },
+    {
+      "model": "Jev 1.13",
+      "split": "time-ordered",
+      "devThreshold": 1,
+      "devAutoMerges": 0,
+      "heldOutPrecision": 1,
+      "heldOutCoverage": 0,
+      "heldOutUnsafe": 0
+    },
+    {
+      "model": "Jev 1.13",
+      "split": "time-ordered",
+      "devThreshold": 1,
+      "devAutoMerges": 0,
+      "heldOutPrecision": 1,
+      "heldOutCoverage": 0,
+      "heldOutUnsafe": 0
+    }
+  ],
+  "sensitivity": [
+    {
+      "label": "all (100 breaking / 85 control)",
+      "n": 185,
+      "controls": 85,
+      "breaking": 100,
+      "jevAuroc": 0.6052352941176471,
+      "jevAP": 0.5096183964972206,
+      "jev062": {
+        "threshold": 0.62,
+        "autoMerged": 30,
+        "precision": 0.5,
+        "coverage": 0.16216216216216217,
+        "unsafe": 15,
+        "breakingRecall": 0.85,
+        "ids": [
+          "ood-break-DeontewattsV1_Ethos-Aegis--415eb05ce0",
+          "ood-break-MixinNetwork_android-app-5810a04412",
+          "ood-break-RedHatInsights_sources-api-go-64652fb899",
+          "ood-break-rajat-wyrm_intelliview-orchestrator-537cb15140",
+          "ood-break-nla_nla-arclight-e1efbabd94",
+          "ood-break-ARCoder181105_funcatlas-f6356353aa",
+          "ood-break-zooniverse_front-end-monorepo-af5eca12ea",
+          "ood-break-Yeshwanth-kr_govt-image-compressor-2634032d9f",
+          "ood-break-netdata_netdata-5a5263188b",
+          "ood-break-navikt_meroppfolging-frontend-01e3234696",
+          "ood-break-navikt_dialogmote-frontend-db4f2eeb47",
+          "ood-break-shivbera18_quiz-repo-2558476011",
+          "ood-break-nairuby_duka-f85d6077c1",
+          "ood-break-otterscale_otterscale-1055288c2e",
+          "ood-break-toxicbishop_Portfolio-4-c243d2c191",
+          "ood-ctrl-abenassi_calculadora-inflacion-ar-8",
+          "ood-ctrl-dlunch_wie-1427",
+          "ood-ctrl-kestra-io_plugin-tika-91",
+          "ood-ctrl-SKB-CGN_ioBroker.energiefluss-erweitert-529",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-47",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-45",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-43",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-42",
+          "ood-ctrl-pycabbage_brave-search-mcp-remote-8",
+          "ood-ctrl-gocd_gocd-14608",
+          "ood-ctrl-ivopogace_riviera-sunbed-booking-1091",
+          "ood-ctrl-ivopogace_riviera-sunbed-booking-1087",
+          "ood-ctrl-ivopogace_riviera-sunbed-booking-1086",
+          "ood-ctrl-mdn_dex-524",
+          "ood-ctrl-opensquare-network_subsquare-7526"
+        ]
+      },
+      "ds090": {
+        "threshold": 0.9,
+        "autoMerged": 10,
+        "precision": 0.7,
+        "coverage": 0.05405405405405406,
+        "unsafe": 3,
+        "breakingRecall": 0.97,
+        "ids": [
+          "ood-break-ARCoder181105_funcatlas-f6356353aa",
+          "ood-break-navikt_dialogmote-frontend-db4f2eeb47",
+          "ood-break-shivbera18_quiz-repo-2558476011",
+          "ood-ctrl-abenassi_calculadora-inflacion-ar-8",
+          "ood-ctrl-SKB-CGN_ioBroker.energiefluss-erweitert-529",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-43",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-42",
+          "ood-ctrl-gocd_gocd-14608",
+          "ood-ctrl-mdn_dex-524",
+          "ood-ctrl-gabrielecabrini_portfolio-12"
+        ]
+      }
+    },
+    {
+      "label": "excluding ambiguous/unrelated reverts (15 dropped)",
+      "n": 170,
+      "controls": 85,
+      "breaking": 85,
+      "jevAuroc": 0.5916262975778547,
+      "jevAP": 0.5379489279829208,
+      "jev062": {
+        "threshold": 0.62,
+        "autoMerged": 28,
+        "precision": 0.5357142857142857,
+        "coverage": 0.16470588235294117,
+        "unsafe": 13,
+        "breakingRecall": 0.8470588235294118,
+        "ids": [
+          "ood-break-DeontewattsV1_Ethos-Aegis--415eb05ce0",
+          "ood-break-MixinNetwork_android-app-5810a04412",
+          "ood-break-RedHatInsights_sources-api-go-64652fb899",
+          "ood-break-rajat-wyrm_intelliview-orchestrator-537cb15140",
+          "ood-break-nla_nla-arclight-e1efbabd94",
+          "ood-break-ARCoder181105_funcatlas-f6356353aa",
+          "ood-break-zooniverse_front-end-monorepo-af5eca12ea",
+          "ood-break-Yeshwanth-kr_govt-image-compressor-2634032d9f",
+          "ood-break-navikt_dialogmote-frontend-db4f2eeb47",
+          "ood-break-shivbera18_quiz-repo-2558476011",
+          "ood-break-nairuby_duka-f85d6077c1",
+          "ood-break-otterscale_otterscale-1055288c2e",
+          "ood-break-toxicbishop_Portfolio-4-c243d2c191",
+          "ood-ctrl-abenassi_calculadora-inflacion-ar-8",
+          "ood-ctrl-dlunch_wie-1427",
+          "ood-ctrl-kestra-io_plugin-tika-91",
+          "ood-ctrl-SKB-CGN_ioBroker.energiefluss-erweitert-529",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-47",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-45",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-43",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-42",
+          "ood-ctrl-pycabbage_brave-search-mcp-remote-8",
+          "ood-ctrl-gocd_gocd-14608",
+          "ood-ctrl-ivopogace_riviera-sunbed-booking-1091",
+          "ood-ctrl-ivopogace_riviera-sunbed-booking-1087",
+          "ood-ctrl-ivopogace_riviera-sunbed-booking-1086",
+          "ood-ctrl-mdn_dex-524",
+          "ood-ctrl-opensquare-network_subsquare-7526"
+        ]
+      },
+      "ds090": {
+        "threshold": 0.9,
+        "autoMerged": 10,
+        "precision": 0.7,
+        "coverage": 0.058823529411764705,
+        "unsafe": 3,
+        "breakingRecall": 0.9647058823529412,
+        "ids": [
+          "ood-break-ARCoder181105_funcatlas-f6356353aa",
+          "ood-break-navikt_dialogmote-frontend-db4f2eeb47",
+          "ood-break-shivbera18_quiz-repo-2558476011",
+          "ood-ctrl-abenassi_calculadora-inflacion-ar-8",
+          "ood-ctrl-SKB-CGN_ioBroker.energiefluss-erweitert-529",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-43",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-42",
+          "ood-ctrl-gocd_gocd-14608",
+          "ood-ctrl-mdn_dex-524",
+          "ood-ctrl-gabrielecabrini_portfolio-12"
+        ]
+      }
+    },
+    {
+      "label": "javascript only",
+      "n": 130,
+      "controls": 62,
+      "breaking": 68,
+      "jevAuroc": 0.6730313092979127,
+      "jevAP": 0.5731309463414439,
+      "jev062": {
+        "threshold": 0.62,
+        "autoMerged": 23,
+        "precision": 0.6086956521739131,
+        "coverage": 0.17692307692307693,
+        "unsafe": 9,
+        "breakingRecall": 0.8676470588235294,
+        "ids": [
+          "ood-break-DeontewattsV1_Ethos-Aegis--415eb05ce0",
+          "ood-break-ARCoder181105_funcatlas-f6356353aa",
+          "ood-break-zooniverse_front-end-monorepo-af5eca12ea",
+          "ood-break-Yeshwanth-kr_govt-image-compressor-2634032d9f",
+          "ood-break-navikt_meroppfolging-frontend-01e3234696",
+          "ood-break-navikt_dialogmote-frontend-db4f2eeb47",
+          "ood-break-shivbera18_quiz-repo-2558476011",
+          "ood-break-otterscale_otterscale-1055288c2e",
+          "ood-break-toxicbishop_Portfolio-4-c243d2c191",
+          "ood-ctrl-abenassi_calculadora-inflacion-ar-8",
+          "ood-ctrl-dlunch_wie-1427",
+          "ood-ctrl-SKB-CGN_ioBroker.energiefluss-erweitert-529",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-47",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-45",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-43",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-42",
+          "ood-ctrl-pycabbage_brave-search-mcp-remote-8",
+          "ood-ctrl-gocd_gocd-14608",
+          "ood-ctrl-ivopogace_riviera-sunbed-booking-1091",
+          "ood-ctrl-ivopogace_riviera-sunbed-booking-1087",
+          "ood-ctrl-ivopogace_riviera-sunbed-booking-1086",
+          "ood-ctrl-mdn_dex-524",
+          "ood-ctrl-opensquare-network_subsquare-7526"
+        ]
+      },
+      "ds090": {
+        "threshold": 0.9,
+        "autoMerged": 10,
+        "precision": 0.7,
+        "coverage": 0.07692307692307693,
+        "unsafe": 3,
+        "breakingRecall": 0.9558823529411765,
+        "ids": [
+          "ood-break-ARCoder181105_funcatlas-f6356353aa",
+          "ood-break-navikt_dialogmote-frontend-db4f2eeb47",
+          "ood-break-shivbera18_quiz-repo-2558476011",
+          "ood-ctrl-abenassi_calculadora-inflacion-ar-8",
+          "ood-ctrl-SKB-CGN_ioBroker.energiefluss-erweitert-529",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-43",
+          "ood-ctrl-Yeshwanth-kr_govt-image-compressor-42",
+          "ood-ctrl-gocd_gocd-14608",
+          "ood-ctrl-mdn_dex-524",
+          "ood-ctrl-gabrielecabrini_portfolio-12"
+        ]
+      }
+    },
+    {
+      "label": "non-javascript",
+      "n": 55,
+      "controls": 23,
+      "breaking": 32,
+      "jevAuroc": 0.37907608695652173,
+      "jevAP": 0.33492088722489954,
+      "jev062": {
+        "threshold": 0.62,
+        "autoMerged": 7,
+        "precision": 0.14285714285714285,
+        "coverage": 0.12727272727272726,
+        "unsafe": 6,
+        "breakingRecall": 0.8125,
+        "ids": [
+          "ood-break-MixinNetwork_android-app-5810a04412",
+          "ood-break-RedHatInsights_sources-api-go-64652fb899",
+          "ood-break-rajat-wyrm_intelliview-orchestrator-537cb15140",
+          "ood-break-nla_nla-arclight-e1efbabd94",
+          "ood-break-netdata_netdata-5a5263188b",
+          "ood-break-nairuby_duka-f85d6077c1",
+          "ood-ctrl-kestra-io_plugin-tika-91"
+        ]
+      },
+      "ds090": {
+        "threshold": 0.9,
+        "autoMerged": 0,
+        "precision": 1,
+        "coverage": 0,
+        "unsafe": 0,
+        "breakingRecall": 1,
+        "ids": []
+      }
+    }
+  ],
+  "conclusion": {
+    "A_implementation_bug": "Ruled out: every recomputed OOD metric (AUROC, AP, bins, frozen counts, precision/coverage/unsafe, breaking recall) matches the report exactly (max delta 0).",
+    "B_dataset_label_problem": {
+      "trustCounts": {
+        "strong": 6,
+        "proximate": 79,
+        "ambiguous": 15
+      },
+      "ambiguousOrUnrelated": 15,
+      "explicitReason": 6,
+      "proximate": 79,
+      "unrelated": 0,
+      "note": "All 100 reverts name the exact dependency and/or version, so every revert targeted THIS update (unrelated=0). But only 6 state an explicit breakage reason; 79 are proximate (revert of the exact update within <=14 days) and 15 are ambiguous (no stated reason and/or grouped revert). Label construction is therefore defensible but largely circumstantial.",
+      "sensitivityEffect": "Excluding the 15 ambiguous cases: AUROC 0.605 -> 0.592, AP 0.510 -> 0.538, frozen-0.62 precision 50.0% -> 53.6%, unsafe 15 -> 13. Label ambiguity is real but does NOT rescue the signal."
+    },
+    "C_distribution_shift": "Primary. Overall JEV AUROC is 0.605, but the signal is ecosystem-dependent: JavaScript AUROC 0.673 vs non-JavaScript 0.379 (below chance). Frozen-0.62 precision is 60.9% on JavaScript vs 14.3% on non-JavaScript, with 15 unsafe merges overall. The frozen original policy is unsafe on OOD under every label subset.",
+    "D_unresolved": "15 ambiguous reverts (no stated cause) and 9 synthesized-state cases remain; a cleaner OOD set could shift the magnitude slightly, but not enough to overturn the weak overall ranking (AUROC 0.605)."
+  },
+  "primaryClassification": "C — genuine distribution-shift failure"
+}

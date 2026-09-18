@@ -1,0 +1,71 @@
+{
+  "createdAt": "2026-09-18T03:16:07.912Z",
+  "note": "Hashes of the frozen implementation used for the OOD validation. Model/prompt/state/evaluator are unchanged from the 1,102-case benchmark.",
+  "files": {
+    "src/prompt.ts": "c2220f16a9de8bd8a544a396166b2b4e2c8b6858a6a6c26c0b76dd3dcd074733",
+    "src/llm.ts": "a4de1f5f6ca77817504f276ddd7762460d92c988df1b9e182f14e937cfde40f3",
+    "src/jev.ts": "411ca04dc3a4930fb7bb1a3ea4e4be30222299e7fa7aa86e842bf544da83da23",
+    "src/evaluate.ts": "cebcaa3ecd3744dace6dc6bec16fc38d270ca2d072de3cc0817da4d48f546eba",
+    "src/rules.ts": "c851bacddca76a17c164e3e548e5a61c2f395668fbeadf6b28b57006d1d4a6c4",
+    "src/types.ts": "7f91290ee88b6bacf8cc0dac956ed7de7455372778915da2c4558273b6cb527f",
+    "src/audit.ts": "398dbbdf1fc369fd8be5944552495082123f3eb1aa6d0ed2dfc1c2e87144b512",
+    "src/run.ts": "95f0afbef4af193e5f2bb1a7e31af56ff9ba17bc0565b5c0fe7584647cf6ac6f",
+    "src/mock.ts": "a4624f6a0714bc677e4f495ef8eb2b556125276f6783137e460ccaa02478e187",
+    "package.json": "d06f54c65d73a87b55a9e8c997fab1c10253a0bd1505b5d668975b76d3a90437",
+    "tsconfig.json": "39d2a9dcea94663863ddebb63b2cc5981ad976ba3d05a0cf6920e4a5b1890764",
+    "scripts/build_ood.mjs": "da460df1840f832afc2513c3b5758d7fe2bf5d25fb32b6f9bfd2cf3db956b8f2",
+    "scripts/ood_audit.mts": "c7536af20ec00475b0062cded3bf4265b4196394c20d2580a5e99307ba1ee8e8"
+  },
+  "frozenConfig": {
+    "openrouterModel": "~deepseek/deepseek-flash-latest",
+    "reasoning": "disabled",
+    "temperature": 0,
+    "responseFormat": "json_schema (decision/risk/confidence)",
+    "jevModel": "jev-latest (SDK default)",
+    "retry": "max 3 attempts, exponential backoff",
+    "evaluator": "src/evaluate.ts coverageAtPrecision / autoMergeScore"
+  },
+  "aggregateModelInputHash": "5f0f5605f0b12fd3ebaa1799caeffee4d628f1f3a9e8ea1d50de465c0d509859",
+  "representativeModelInputHashes": [
+    {
+      "id": "ood-break-tetracilin_test_ai_todo-41c64c626b",
+      "sha256": "61c55f298b79517c30d3293bd5f52a883fd4a5f827c1a7ba89f7666c34f186ad"
+    },
+    {
+      "id": "ood-break-NPFernando_hermes-workspace-0ff872ad53",
+      "sha256": "04902e59db52e6c5379094c2063b61c7a46ea004d9bab042008e64eba85ef50b"
+    },
+    {
+      "id": "ood-break-efficience-it_website-148e8627d2",
+      "sha256": "c8ef41a588d9d0b83c29733ba315462839357e1c81e04bb1a4ece52c4f6fe3e2"
+    },
+    {
+      "id": "ood-break-systemd_systemd-636bd5a0e6",
+      "sha256": "cf1176c6c1859b00060dff5797f0205eabd7549a4573239e4b442e3d9e1d4c4f"
+    },
+    {
+      "id": "ood-break-DeontewattsV1_Ethos-Aegis--415eb05ce0",
+      "sha256": "0a6cefcbc5334a5e301dd9dbe0f379d333bf2b56c03c1f9f860e3891e49bc4ea"
+    },
+    {
+      "id": "ood-break-MixinNetwork_android-app-5810a04412",
+      "sha256": "e754941b729cfe85992fdf731ff069b0747a2802608bdd519c44210300770a98"
+    },
+    {
+      "id": "ood-break-abenassi_calculadora-inflacion-ar-bba9a61af1",
+      "sha256": "8122eeffbfba2147e5c599721dd33da6647419c484dcdca5576a74265a8efe7e"
+    },
+    {
+      "id": "ood-break-QinCai-rui_MeshTalk-872492a3ce",
+      "sha256": "fa44391aa42580bc963b4e2da68f24a34fee311c1f841cf1ed8adac641decfa4"
+    },
+    {
+      "id": "ood-break-MySharee_MyShare-673b7a729c",
+      "sha256": "aec9aa8fb785202065f71cf1af405a31ce03e2c7776c9db4d9474a8049536c35"
+    },
+    {
+      "id": "ood-break-dmadan86_waves-4718079860",
+      "sha256": "25bee181bd713ab4c824ce03a1d2a1416630c2268e0b3301debc23afd24dfd17"
+    }
+  ]
+}

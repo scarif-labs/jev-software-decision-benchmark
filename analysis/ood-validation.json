@@ -1,0 +1,1313 @@
+{
+  "meta": {
+    "generatedAt": "2026-09-18T03:21:34.394Z",
+    "cases": 185,
+    "breaking": 100,
+    "controls": 85,
+    "modelReturned": [
+      "deepseek/deepseek-v4.1-flash"
+    ],
+    "note": "OOD validation. Frozen thresholds taken from the original 1,102-case benchmark (report/table.json). No threshold selected on OOD labels."
+  },
+  "ranking": {
+    "jev_pAutoMerge": {
+      "auroc": 0.6052352941176471,
+      "averagePrecision": 0.5096183964972206
+    },
+    "deepseek_gated": {
+      "auroc": 0.5341764705882353,
+      "averagePrecision": 0.38532823725515614
+    },
+    "deepseek_rawConfidence": {
+      "auroc": 0.46188235294117647,
+      "averagePrecision": 0.38190233012068864
+    },
+    "staticRule": {
+      "auroc": 0.5685294117647058,
+      "averagePrecision": 0.36766069644684624
+    }
+  },
+  "bootstrap": {
+    "jevAuroc": {
+      "lo": 0.525311252055438,
+      "hi": 0.6851656095842142,
+      "n": 2000
+    },
+    "jevFrozenRepoDisjoint": {
+      "coverage": {
+        "lo": 0.10810810810810811,
+        "hi": 0.22162162162162163,
+        "n": 2000
+      },
+      "precision": {
+        "lo": 0.32,
+        "hi": 0.6896551724137931,
+        "n": 2000
+      }
+    },
+    "deepseekFrozenRepoDisjoint": {
+      "coverage": {
+        "lo": 0.021621621621621623,
+        "hi": 0.08648648648648649,
+        "n": 2000
+      },
+      "precision": {
+        "lo": 0.375,
+        "hi": 1,
+        "n": 2000
+      }
+    }
+  },
+  "calibration": [
+    {
+      "bin": [
+        0,
+        0.1
+      ],
+      "n": 113,
+      "controls": 46,
+      "breaking": 67,
+      "meanScore": 0.01221238938053098,
+      "controlRate": 0.40707964601769914
+    },
+    {
+      "bin": [
+        0.1,
+        0.2
+      ],
+      "n": 11,
+      "controls": 6,
+      "breaking": 5,
+      "meanScore": 0.14454545454545456,
+      "controlRate": 0.5454545454545454
+    },
+    {
+      "bin": [
+        0.2,
+        0.3
+      ],
+      "n": 6,
+      "controls": 3,
+      "breaking": 3,
+      "meanScore": 0.25833333333333336,
+      "controlRate": 0.5
+    },
+    {
+      "bin": [
+        0.3,
+        0.4
+      ],
+      "n": 5,
+      "controls": 4,
+      "breaking": 1,
+      "meanScore": 0.36000000000000004,
+      "controlRate": 0.8
+    },
+    {
+      "bin": [
+        0.4,
+        0.5
+      ],
+      "n": 10,
+      "controls": 4,
+      "breaking": 6,
+      "meanScore": 0.44400000000000006,
+      "controlRate": 0.4
+    },
+    {
+      "bin": [
+        0.5,
+        0.6
+      ],
+      "n": 8,
+      "controls": 5,
+      "breaking": 3,
+      "meanScore": 0.53125,
+      "controlRate": 0.625
+    },
+    {
+      "bin": [
+        0.6,
+        0.7
+      ],
+      "n": 6,
+      "controls": 4,
+      "breaking": 2,
+      "meanScore": 0.6266666666666666,
+      "controlRate": 0.6666666666666666
+    },
+    {
+      "bin": [
+        0.7,
+        0.8
+      ],
+      "n": 6,
+      "controls": 3,
+      "breaking": 3,
+      "meanScore": 0.7516666666666666,
+      "controlRate": 0.5
+    },
+    {
+      "bin": [
+        0.8,
+        0.9
+      ],
+      "n": 7,
+      "controls": 1,
+      "breaking": 6,
+      "meanScore": 0.8457142857142858,
+      "controlRate": 0.14285714285714285
+    },
+    {
+      "bin": [
+        0.9,
+        1.0001
+      ],
+      "n": 13,
+      "controls": 9,
+      "breaking": 4,
+      "meanScore": 0.94,
+      "controlRate": 0.6923076923076923
+    }
+  ],
+  "oracle": [
+    {
+      "target": 0.99,
+      "rules": {
+        "model": "Static rules",
+        "targetPrecision": 0.99,
+        "n": 185,
+        "evaluable": 185,
+        "errors": 0,
+        "threshold": 1,
+        "autoMerged": 0,
+        "coverage": 0,
+        "precision": 1,
+        "unsafe": 0,
+        "reviewRecallOnBreaking": 0.69,
+        "brier": 0.42162162162162165,
+        "ece": 0.42162162162162165,
+        "meanLatencyMs": 0.0018490432432430853,
+        "p95LatencyMs": 0.0036870000000135406,
+        "costUsdPer1k": 0
+      },
+      "deepseek": {
+        "model": "DeepSeek Flash",
+        "targetPrecision": 0.99,
+        "n": 185,
+        "evaluable": 185,
+        "errors": 0,
+        "threshold": 1,
+        "autoMerged": 0,
+        "coverage": 0,
+        "precision": 1,
+        "unsafe": 0,
+        "reviewRecallOnBreaking": 0.81,
+        "brier": 0.4213048648648648,
+        "ece": 0.41686486486486485,
+        "meanLatencyMs": 2578.9044067135123,
+        "p95LatencyMs": 6781.573092000006,
+        "costUsdPer1k": 0.6623249383783781
+      },
+      "jev": {
+        "model": "JEV",
+        "targetPrecision": 0.99,
+        "n": 185,
+        "evaluable": 185,
+        "errors": 0,
+        "threshold": 1,
+        "autoMerged": 0,
+        "coverage": 0,
+        "precision": 1,
+        "unsafe": 0,
+        "reviewRecallOnBreaking": 0.81,
+        "brier": 0.37098270270270267,
+        "ece": 0.3446486486486486,
+        "meanLatencyMs": 468.0301393297301,
+        "p95LatencyMs": 856.0192410000018,
+        "costUsdPer1k": 0.12543992432432427
+      }
+    },
+    {
+      "target": 0.995,
+      "rules": {
+        "model": "Static rules",
+        "targetPrecision": 0.995,
+        "n": 185,
+        "evaluable": 185,
+        "errors": 0,
+        "threshold": 1,
+        "autoMerged": 0,
+        "coverage": 0,
+        "precision": 1,
+        "unsafe": 0,
+        "reviewRecallOnBreaking": 0.69,
+        "brier": 0.42162162162162165,
+        "ece": 0.42162162162162165,
+        "meanLatencyMs": 0.0018490432432430853,
+        "p95LatencyMs": 0.0036870000000135406,
+        "costUsdPer1k": 0
+      },
+      "deepseek": {
+        "model": "DeepSeek Flash",
+        "targetPrecision": 0.995,
+        "n": 185,
+        "evaluable": 185,
+        "errors": 0,
+        "threshold": 1,
+        "autoMerged": 0,
+        "coverage": 0,
+        "precision": 1,
+        "unsafe": 0,
+        "reviewRecallOnBreaking": 0.81,
+        "brier": 0.4213048648648648,
+        "ece": 0.41686486486486485,
+        "meanLatencyMs": 2578.9044067135123,
+        "p95LatencyMs": 6781.573092000006,
+        "costUsdPer1k": 0.6623249383783781
+      },
+      "jev": {
+        "model": "JEV",
+        "targetPrecision": 0.995,
+        "n": 185,
+        "evaluable": 185,
+        "errors": 0,
+        "threshold": 1,
+        "autoMerged": 0,
+        "coverage": 0,
+        "precision": 1,
+        "unsafe": 0,
+        "reviewRecallOnBreaking": 0.81,
+        "brier": 0.37098270270270267,
+        "ece": 0.3446486486486486,
+        "meanLatencyMs": 468.0301393297301,
+        "p95LatencyMs": 856.0192410000018,
+        "costUsdPer1k": 0.12543992432432427
+      }
+    }
+  ],
+  "frozenPolicies": [
+    {
+      "policy": "JEV — repo-disjoint (orig)",
+      "split": "repo-disjoint",
+      "threshold": 0.62,
+      "autoMerged": 30,
+      "precision": 0.5,
+      "coverage": 0.16216216216216217,
+      "unsafe": 15,
+      "evaluable": 185,
+      "errors": 0,
+      "breakingRecall": 0.85,
+      "autoMergedIds": [
+        {
+          "id": "ood-break-DeontewattsV1_Ethos-Aegis--415eb05ce0",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-MixinNetwork_android-app-5810a04412",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-RedHatInsights_sources-api-go-64652fb899",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-rajat-wyrm_intelliview-orchestrator-537cb15140",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-nla_nla-arclight-e1efbabd94",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-ARCoder181105_funcatlas-f6356353aa",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-zooniverse_front-end-monorepo-af5eca12ea",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-Yeshwanth-kr_govt-image-compressor-2634032d9f",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-netdata_netdata-5a5263188b",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-navikt_meroppfolging-frontend-01e3234696",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-navikt_dialogmote-frontend-db4f2eeb47",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-shivbera18_quiz-repo-2558476011",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-nairuby_duka-f85d6077c1",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-otterscale_otterscale-1055288c2e",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-toxicbishop_Portfolio-4-c243d2c191",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-ctrl-abenassi_calculadora-inflacion-ar-8",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-dlunch_wie-1427",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-kestra-io_plugin-tika-91",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-SKB-CGN_ioBroker.energiefluss-erweitert-529",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-Yeshwanth-kr_govt-image-compressor-47",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-Yeshwanth-kr_govt-image-compressor-45",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-Yeshwanth-kr_govt-image-compressor-43",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-Yeshwanth-kr_govt-image-compressor-42",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-pycabbage_brave-search-mcp-remote-8",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-gocd_gocd-14608",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-ivopogace_riviera-sunbed-booking-1091",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-ivopogace_riviera-sunbed-booking-1087",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-ivopogace_riviera-sunbed-booking-1086",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-mdn_dex-524",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-opensquare-network_subsquare-7526",
+          "gold": "AUTO_MERGE"
+        }
+      ]
+    },
+    {
+      "policy": "JEV — time-ordered (orig)",
+      "split": "time-ordered",
+      "threshold": 1,
+      "autoMerged": 0,
+      "precision": 1,
+      "coverage": 0,
+      "unsafe": 0,
+      "evaluable": 185,
+      "errors": 0,
+      "breakingRecall": 1,
+      "autoMergedIds": []
+    },
+    {
+      "policy": "DeepSeek — repo-disjoint (orig)",
+      "split": "repo-disjoint",
+      "threshold": 0.9,
+      "autoMerged": 10,
+      "precision": 0.7,
+      "coverage": 0.05405405405405406,
+      "unsafe": 3,
+      "evaluable": 185,
+      "errors": 0,
+      "breakingRecall": 0.97,
+      "autoMergedIds": [
+        {
+          "id": "ood-break-ARCoder181105_funcatlas-f6356353aa",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-navikt_dialogmote-frontend-db4f2eeb47",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-shivbera18_quiz-repo-2558476011",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-ctrl-abenassi_calculadora-inflacion-ar-8",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-SKB-CGN_ioBroker.energiefluss-erweitert-529",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-Yeshwanth-kr_govt-image-compressor-43",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-Yeshwanth-kr_govt-image-compressor-42",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-gocd_gocd-14608",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-mdn_dex-524",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-gabrielecabrini_portfolio-12",
+          "gold": "AUTO_MERGE"
+        }
+      ]
+    },
+    {
+      "policy": "Static rules — repo-disjoint (orig)",
+      "split": "repo-disjoint",
+      "threshold": 1,
+      "autoMerged": 69,
+      "precision": 0.5507246376811594,
+      "coverage": 0.372972972972973,
+      "unsafe": 31,
+      "evaluable": 185,
+      "errors": 0,
+      "breakingRecall": 0.69,
+      "autoMergedIds": [
+        {
+          "id": "ood-break-DeontewattsV1_Ethos-Aegis--415eb05ce0",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-MixinNetwork_android-app-5810a04412",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-uber_submitqueue-86f141e12f",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-RedHatInsights_sources-api-go-64652fb899",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-get-convex_caddy-consul-upstreams-ed7586ae54",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-KennispuntTwente_KWALLM-ceeef14aa8",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-rajat-wyrm_intelliview-orchestrator-537cb15140",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-vacs-project_vacs-16b9176efc",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-nla_nla-arclight-e1efbabd94",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-PCGen_pcgen-93651ee50d",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-ARCoder181105_funcatlas-f6356353aa",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-oslc-op_refimpl-6fdae3ae12",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-zooniverse_front-end-monorepo-af5eca12ea",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-Yeshwanth-kr_govt-image-compressor-2634032d9f",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-netdata_netdata-5a5263188b",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-govuk-one-login_data-vocab-af89d4c784",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-microsoft_vscode-java-pack-2d38a11cd7",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-gocd_gocd-73ad808c10",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-thinkAmi_railroads-4b098d915e",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-LibreTexts_conductor-9264e3b863",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-gravitl_netmaker-1c02667d78",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-navikt_meroppfolging-frontend-01e3234696",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-ivopogace_riviera-sunbed-booking-19ab9d6f88",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-SunilKumarKV_chessPlay-97c8de834e",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-minghuaw_fe2o3-amqp-33b059f508",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-navikt_dialogmote-frontend-db4f2eeb47",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-shivbera18_quiz-repo-2558476011",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-nairuby_duka-f85d6077c1",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-otterscale_otterscale-1055288c2e",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-Slijeff_my-website-588b34e2ea",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-break-toxicbishop_Portfolio-4-c243d2c191",
+          "gold": "REQUIRE_REVIEW"
+        },
+        {
+          "id": "ood-ctrl-MixinNetwork_android-app-6674",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-MixinNetwork_android-app-6671",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-MixinNetwork_android-app-6667",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-abenassi_calculadora-inflacion-ar-8",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-dlunch_wie-1431",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-dlunch_wie-1427",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-kestra-io_plugin-tika-91",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-ministryofjustice_hmpps-book-secure-move-frontend-3648",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-get-convex_caddy-consul-upstreams-8",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-SKB-CGN_ioBroker.energiefluss-erweitert-531",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-SKB-CGN_ioBroker.energiefluss-erweitert-529",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-Yeshwanth-kr_govt-image-compressor-47",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-Yeshwanth-kr_govt-image-compressor-45",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-Yeshwanth-kr_govt-image-compressor-43",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-Yeshwanth-kr_govt-image-compressor-42",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-govuk-one-login_data-vocab-284",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-pycabbage_brave-search-mcp-remote-8",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-gocd_gocd-14610",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-gocd_gocd-14608",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-LibreTexts_conductor-242",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-ivopogace_riviera-sunbed-booking-1091",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-ivopogace_riviera-sunbed-booking-1087",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-ivopogace_riviera-sunbed-booking-1086",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-ivopogace_riviera-sunbed-booking-1085",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-mdn_dex-524",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-mdn_dex-523",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-mdn_dex-521",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-mdn_dex-520",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-ChelseaKR_family-greenhouse-181",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-ChelseaKR_family-greenhouse-180",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-navikt_dialogmote-frontend-284",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-otterscale_otterscale-53",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-ItsSunnyMonster_averiesque.com-63",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-ItsSunnyMonster_averiesque.com-65",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-opensquare-network_subsquare-7527",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-opensquare-network_subsquare-7526",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-gabrielecabrini_portfolio-12",
+          "gold": "AUTO_MERGE"
+        },
+        {
+          "id": "ood-ctrl-gabrielecabrini_portfolio-11",
+          "gold": "AUTO_MERGE"
+        }
+      ]
+    }
+  ],
+  "operational": {
+    "rules": {
+      "model": "Static rules",
+      "successful": 185,
+      "errors": 0,
+      "evaluable": 185,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "totalCostUsd": 0,
+      "costPer1kUsd": 0,
+      "latencyMeanMs": 0,
+      "latencyP50Ms": 0,
+      "latencyP95Ms": 0,
+      "latencyMaxMs": 0,
+      "decisions": {
+        "REQUIRE_REVIEW": 107,
+        "AUTO_MERGE": 69,
+        "HOLD": 9
+      }
+    },
+    "deepseek": {
+      "model": "DeepSeek Flash",
+      "successful": 185,
+      "errors": 0,
+      "evaluable": 185,
+      "inputTokens": 473083,
+      "outputTokens": 5531,
+      "totalCostUsd": 0.1225,
+      "costPer1kUsd": 0.6623,
+      "latencyMeanMs": 2579,
+      "latencyP50Ms": 1914,
+      "latencyP95Ms": 6782,
+      "latencyMaxMs": 17671,
+      "decisions": {
+        "HUMAN_REVIEW": 143,
+        "AUTO_MERGE": 40,
+        "HOLD": 2
+      }
+    },
+    "jev": {
+      "model": "JEV",
+      "successful": 185,
+      "errors": 0,
+      "evaluable": 185,
+      "inputTokens": 552533,
+      "outputTokens": 9173,
+      "totalCostUsd": 0.0232,
+      "costPer1kUsd": 0.1254,
+      "latencyMeanMs": 468,
+      "latencyP50Ms": 393,
+      "latencyP95Ms": 856,
+      "latencyMaxMs": 2443,
+      "decisions": {
+        "REQUIRE_REVIEW": 132,
+        "HOLD": 12,
+        "AUTO_MERGE": 41
+      }
+    }
+  },
+  "stratification": {
+    "ecosystem": [
+      {
+        "value": "javascript",
+        "n": 130,
+        "controls": 62,
+        "breaking": 68,
+        "jevAuroc": 0.6730313092979127,
+        "jevOracleCoverage99": 0,
+        "jevOraclePrecision99": 1,
+        "jevOracleUnsafe99": 0
+      },
+      {
+        "value": "java",
+        "n": 16,
+        "controls": 7,
+        "breaking": 9,
+        "jevAuroc": 0.373015873015873,
+        "jevOracleCoverage99": 0,
+        "jevOraclePrecision99": 1,
+        "jevOracleUnsafe99": 0
+      },
+      {
+        "value": "rust",
+        "n": 15,
+        "controls": 7,
+        "breaking": 8,
+        "jevAuroc": 0.5089285714285714,
+        "jevOracleCoverage99": 0,
+        "jevOraclePrecision99": 1,
+        "jevOracleUnsafe99": 0
+      },
+      {
+        "value": "go",
+        "n": 11,
+        "controls": 6,
+        "breaking": 5,
+        "jevAuroc": 0.1,
+        "jevOracleCoverage99": 0,
+        "jevOraclePrecision99": 1,
+        "jevOracleUnsafe99": 0
+      },
+      {
+        "value": "python",
+        "n": 9,
+        "controls": 1,
+        "breaking": 8,
+        "jevAuroc": null,
+        "jevOracleCoverage99": 0,
+        "jevOraclePrecision99": 1,
+        "jevOracleUnsafe99": 0,
+        "note": "one-class or too small: ranking metrics omitted"
+      },
+      {
+        "value": "ruby",
+        "n": 4,
+        "controls": 2,
+        "breaking": 2,
+        "jevAuroc": null,
+        "jevOracleCoverage99": 0,
+        "jevOraclePrecision99": 1,
+        "jevOracleUnsafe99": 0,
+        "note": "one-class or too small: ranking metrics omitted"
+      }
+    ],
+    "update-type": [
+      {
+        "value": "major",
+        "n": 88,
+        "controls": 43,
+        "breaking": 45,
+        "jevAuroc": 0.7576227390180879,
+        "jevOracleCoverage99": 0.011363636363636364,
+        "jevOraclePrecision99": 1,
+        "jevOracleUnsafe99": 0
+      },
+      {
+        "value": "minor",
+        "n": 63,
+        "controls": 28,
+        "breaking": 35,
+        "jevAuroc": 0.6091836734693877,
+        "jevOracleCoverage99": 0,
+        "jevOraclePrecision99": 1,
+        "jevOracleUnsafe99": 0
+      },
+      {
+        "value": "patch",
+        "n": 33,
+        "controls": 13,
+        "breaking": 20,
+        "jevAuroc": 0.7076923076923077,
+        "jevOracleCoverage99": 0,
+        "jevOraclePrecision99": 1,
+        "jevOracleUnsafe99": 0
+      },
+      {
+        "value": "other",
+        "n": 1,
+        "controls": 1,
+        "breaking": 0,
+        "jevAuroc": null,
+        "jevOracleCoverage99": 1,
+        "jevOraclePrecision99": 1,
+        "jevOracleUnsafe99": 0,
+        "note": "one-class or too small: ranking metrics omitted"
+      }
+    ],
+    "package-manager": [
+      {
+        "value": "npm",
+        "n": 130,
+        "controls": 62,
+        "breaking": 68,
+        "jevAuroc": 0.6730313092979127,
+        "jevOracleCoverage99": 0,
+        "jevOraclePrecision99": 1,
+        "jevOracleUnsafe99": 0
+      },
+      {
+        "value": "cargo",
+        "n": 15,
+        "controls": 7,
+        "breaking": 8,
+        "jevAuroc": 0.5089285714285714,
+        "jevOracleCoverage99": 0,
+        "jevOraclePrecision99": 1,
+        "jevOracleUnsafe99": 0
+      },
+      {
+        "value": "gradle",
+        "n": 13,
+        "controls": 7,
+        "breaking": 6,
+        "jevAuroc": 0.34523809523809523,
+        "jevOracleCoverage99": 0,
+        "jevOraclePrecision99": 1,
+        "jevOracleUnsafe99": 0
+      },
+      {
+        "value": "go",
+        "n": 11,
+        "controls": 6,
+        "breaking": 5,
+        "jevAuroc": 0.1,
+        "jevOracleCoverage99": 0,
+        "jevOraclePrecision99": 1,
+        "jevOracleUnsafe99": 0
+      },
+      {
+        "value": "pip",
+        "n": 9,
+        "controls": 1,
+        "breaking": 8,
+        "jevAuroc": null,
+        "jevOracleCoverage99": 0,
+        "jevOraclePrecision99": 1,
+        "jevOracleUnsafe99": 0,
+        "note": "one-class or too small: ranking metrics omitted"
+      },
+      {
+        "value": "bundler",
+        "n": 4,
+        "controls": 2,
+        "breaking": 2,
+        "jevAuroc": null,
+        "jevOracleCoverage99": 0,
+        "jevOraclePrecision99": 1,
+        "jevOracleUnsafe99": 0,
+        "note": "one-class or too small: ranking metrics omitted"
+      },
+      {
+        "value": "maven",
+        "n": 3,
+        "controls": 0,
+        "breaking": 3,
+        "jevAuroc": null,
+        "jevOracleCoverage99": 0,
+        "jevOraclePrecision99": 1,
+        "jevOracleUnsafe99": 0,
+        "note": "one-class or too small: ranking metrics omitted"
+      }
+    ]
+  },
+  "classification": {
+    "label": "C",
+    "title": "Signal does not replicate (as a transferable decision signal), with a weak stratum-specific ordering exception",
+    "observations": [
+      "JEV AUROC on OOD = 0.605 (95% CI 0.525-0.685) vs 0.851 on the original benchmark; AP 0.510 vs a 0.459 base rate.",
+      "Calibration does not transfer: the control rate per JEV score bin is non-monotonic and the 0.8-0.9 bin is 14% control (86% breaking).",
+      "The frozen original threshold 0.62 auto-merges 30 OOD cases at 0.500 precision with 15 unsafe merges; the frozen time-ordered threshold 1.0 auto-merges nothing.",
+      "The retrospective OOD oracle reaches 0% coverage at 99% precision for every model, so no threshold on these scores supports safe automation.",
+      "The weak ordering that exists is concentrated in JavaScript (AUROC 0.673) and major updates (0.758); other strata are near or below chance (Go 0.100, Java 0.373), with small n."
+    ],
+    "caveat": "The OOD label channel (in-repo revert) and population (mostly npm) differ from BUMP, and some reverts may not reflect a genuine breaking regression. That label noise would attenuate a real signal, so the failure to replicate the decision signal is firm, while the ordering signal is not proven absent."
+  },
+  "curves": {
+    "riskCoverage": {
+      "jev": [
+        {
+          "threshold": 1.0000001,
+          "autoMerged": 0,
+          "coverage": 0,
+          "precision": 1,
+          "unsafe": 0
+        },
+        {
+          "threshold": 0.98,
+          "autoMerged": 2,
+          "coverage": 0.010810810810810811,
+          "precision": 0.5,
+          "unsafe": 1
+        },
+        {
+          "threshold": 0.97,
+          "autoMerged": 3,
+          "coverage": 0.016216216216216217,
+          "precision": 0.3333333333333333,
+          "unsafe": 2
+        },
+        {
+          "threshold": 0.96,
+          "autoMerged": 4,
+          "coverage": 0.021621621621621623,
+          "precision": 0.25,
+          "unsafe": 3
+        },
+        {
+          "threshold": 0.95,
+          "autoMerged": 6,
+          "coverage": 0.032432432432432434,
+          "precision": 0.3333333333333333,
+          "unsafe": 4
+        },
+        {
+          "threshold": 0.94,
+          "autoMerged": 7,
+          "coverage": 0.03783783783783784,
+          "precision": 0.42857142857142855,
+          "unsafe": 4
+        },
+        {
+          "threshold": 0.93,
+          "autoMerged": 9,
+          "coverage": 0.04864864864864865,
+          "precision": 0.5555555555555556,
+          "unsafe": 4
+        },
+        {
+          "threshold": 0.92,
+          "autoMerged": 10,
+          "coverage": 0.05405405405405406,
+          "precision": 0.6,
+          "unsafe": 4
+        },
+        {
+          "threshold": 0.91,
+          "autoMerged": 11,
+          "coverage": 0.05945945945945946,
+          "precision": 0.6363636363636364,
+          "unsafe": 4
+        },
+        {
+          "threshold": 0.9,
+          "autoMerged": 13,
+          "coverage": 0.07027027027027027,
+          "precision": 0.6923076923076923,
+          "unsafe": 4
+        },
+        {
+          "threshold": 0.88,
+          "autoMerged": 14,
+          "coverage": 0.07567567567567568,
+          "precision": 0.6428571428571429,
+          "unsafe": 5
+        },
+        {
+          "threshold": 0.86,
+          "autoMerged": 15,
+          "coverage": 0.08108108108108109,
+          "precision": 0.6,
+          "unsafe": 6
+        },
+        {
+          "threshold": 0.85,
+          "autoMerged": 17,
+          "coverage": 0.0918918918918919,
+          "precision": 0.5294117647058824,
+          "unsafe": 8
+        },
+        {
+          "threshold": 0.83,
+          "autoMerged": 19,
+          "coverage": 0.10270270270270271,
+          "precision": 0.47368421052631576,
+          "unsafe": 10
+        },
+        {
+          "threshold": 0.8200000000000001,
+          "autoMerged": 20,
+          "coverage": 0.10810810810810811,
+          "precision": 0.5,
+          "unsafe": 10
+        },
+        {
+          "threshold": 0.77,
+          "autoMerged": 22,
+          "coverage": 0.11891891891891893,
+          "precision": 0.5,
+          "unsafe": 11
+        },
+        {
+          "threshold": 0.75,
+          "autoMerged": 25,
+          "coverage": 0.13513513513513514,
+          "precision": 0.48,
+          "unsafe": 13
+        },
+        {
+          "threshold": 0.72,
+          "autoMerged": 26,
+          "coverage": 0.14054054054054055,
+          "precision": 0.5,
+          "unsafe": 13
+        },
+        {
+          "threshold": 0.67,
+          "autoMerged": 27,
+          "coverage": 0.14594594594594595,
+          "precision": 0.5185185185185185,
+          "unsafe": 13
+        },
+        {
+          "threshold": 0.64,
+          "autoMerged": 28,
+          "coverage": 0.15135135135135136,
+          "precision": 0.5,
+          "unsafe": 14
+        },
+        {
+          "threshold": 0.62,
+          "autoMerged": 30,
+          "coverage": 0.16216216216216217,
+          "precision": 0.5,
+          "unsafe": 15
+        },
+        {
+          "threshold": 0.61,
+          "autoMerged": 31,
+          "coverage": 0.16756756756756758,
+          "precision": 0.5161290322580645,
+          "unsafe": 15
+        },
+        {
+          "threshold": 0.6,
+          "autoMerged": 32,
+          "coverage": 0.17297297297297298,
+          "precision": 0.53125,
+          "unsafe": 15
+        },
+        {
+          "threshold": 0.59,
+          "autoMerged": 33,
+          "coverage": 0.1783783783783784,
+          "precision": 0.5454545454545454,
+          "unsafe": 15
+        },
+        {
+          "threshold": 0.55,
+          "autoMerged": 34,
+          "coverage": 0.1837837837837838,
+          "precision": 0.5588235294117647,
+          "unsafe": 15
+        },
+        {
+          "threshold": 0.53,
+          "autoMerged": 35,
+          "coverage": 0.1891891891891892,
+          "precision": 0.5714285714285714,
+          "unsafe": 15
+        },
+        {
+          "threshold": 0.52,
+          "autoMerged": 38,
+          "coverage": 0.20540540540540542,
+          "precision": 0.5789473684210527,
+          "unsafe": 16
+        },
+        {
+          "threshold": 0.51,
+          "autoMerged": 40,
+          "coverage": 0.21621621621621623,
+          "precision": 0.55,
+          "unsafe": 18
+        },
+        {
+          "threshold": 0.46,
+          "autoMerged": 41,
+          "coverage": 0.22162162162162163,
+          "precision": 0.5365853658536586,
+          "unsafe": 19
+        }
+      ],
+      "deepseek": [
+        {
+          "threshold": 1.0000001,
+          "autoMerged": 0,
+          "coverage": 0,
+          "precision": 1,
+          "unsafe": 0
+        },
+        {
+          "threshold": 0.95,
+          "autoMerged": 2,
+          "coverage": 0.010810810810810811,
+          "precision": 0.5,
+          "unsafe": 1
+        },
+        {
+          "threshold": 0.92,
+          "autoMerged": 3,
+          "coverage": 0.016216216216216217,
+          "precision": 0.6666666666666666,
+          "unsafe": 1
+        },
+        {
+          "threshold": 0.9,
+          "autoMerged": 10,
+          "coverage": 0.05405405405405406,
+          "precision": 0.7,
+          "unsafe": 3
+        },
+        {
+          "threshold": 0.85,
+          "autoMerged": 32,
+          "coverage": 0.17297297297297298,
+          "precision": 0.5625,
+          "unsafe": 14
+        },
+        {
+          "threshold": 0.8,
+          "autoMerged": 38,
+          "coverage": 0.20540540540540542,
+          "precision": 0.5526315789473685,
+          "unsafe": 17
+        },
+        {
+          "threshold": 0.75,
+          "autoMerged": 40,
+          "coverage": 0.21621621621621623,
+          "precision": 0.525,
+          "unsafe": 19
+        }
+      ],
+      "rules": [
+        {
+          "threshold": 1.0000001,
+          "autoMerged": 0,
+          "coverage": 0,
+          "precision": 1,
+          "unsafe": 0
+        },
+        {
+          "threshold": 1,
+          "autoMerged": 69,
+          "coverage": 0.372972972972973,
+          "precision": 0.5507246376811594,
+          "unsafe": 31
+        }
+      ]
+    }
+  }
+}

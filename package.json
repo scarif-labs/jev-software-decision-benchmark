@@ -1,0 +1,25 @@
+{
+  "name": "jev-dependency-benchmark",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "bump": "node scripts/build_bump.mjs",
+    "controls": "node scripts/build_controls.mjs && node scripts/verify_controls.mjs",
+    "dataset": "node scripts/build_dataset.mjs",
+    "audit": "tsx src/audit.ts",
+    "schema-check": "tsx src/schema-check.ts",
+    "benchmark": "tsx src/run.ts",
+    "mock": "MOCK=1 tsx src/run.ts"
+  },
+  "dependencies": {
+    "@typesafe-ai/sdk": "latest",
+    "openai": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "tsx": "latest",
+    "typescript": "latest"
+  }
+}

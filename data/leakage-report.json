@@ -1,0 +1,168 @@
+{
+  "cases": 1102,
+  "stateTopLevel": [
+    "project",
+    "update",
+    "pullRequest",
+    "dependencyReleaseNotes",
+    "preMergeChecks"
+  ],
+  "forbiddenKeyViolations": [],
+  "forbiddenTokenViolations": [],
+  "perfectSeparators": [
+    {
+      "field": "update.updateType",
+      "value": "update.updateType=other",
+      "total": 161,
+      "breaking": 161,
+      "control": 0,
+      "purity": 1
+    },
+    {
+      "field": "update.dependency",
+      "value": "update.dependency=org.jenkins-ci.plugins:plugin",
+      "total": 40,
+      "breaking": 0,
+      "control": 40,
+      "purity": 1
+    },
+    {
+      "field": "update.previousVersion",
+      "value": "update.previousVersion=5.3.24",
+      "total": 36,
+      "breaking": 36,
+      "control": 0,
+      "purity": 1
+    },
+    {
+      "field": "update.dependency",
+      "value": "update.dependency=com.fasterxml.jackson.core:jackson-databind",
+      "total": 33,
+      "breaking": 33,
+      "control": 0,
+      "purity": 1
+    },
+    {
+      "field": "project.repository",
+      "value": "project.repository=pac4j/dropwizard-pac4j",
+      "total": 29,
+      "breaking": 29,
+      "control": 0,
+      "purity": 1
+    },
+    {
+      "field": "update.dependency",
+      "value": "update.dependency=plugin",
+      "total": 25,
+      "breaking": 0,
+      "control": 25,
+      "purity": 1
+    },
+    {
+      "field": "update.previousVersion",
+      "value": "update.previousVersion=5.3.23",
+      "total": 22,
+      "breaking": 22,
+      "control": 0,
+      "purity": 1
+    },
+    {
+      "field": "update.dependency",
+      "value": "update.dependency=org.springframework:spring-core",
+      "total": 20,
+      "breaking": 20,
+      "control": 0,
+      "purity": 1
+    },
+    {
+      "field": "update.dependency",
+      "value": "update.dependency=ch.qos.logback:logback-classic",
+      "total": 20,
+      "breaking": 20,
+      "control": 0,
+      "purity": 1
+    },
+    {
+      "field": "update.dependency",
+      "value": "update.dependency=io.jenkins.tools.bom:bom-2.479.x",
+      "total": 19,
+      "breaking": 0,
+      "control": 19,
+      "purity": 1
+    },
+    {
+      "field": "update.dependency",
+      "value": "update.dependency=bom-2.332.x",
+      "total": 19,
+      "breaking": 0,
+      "control": 19,
+      "purity": 1
+    },
+    {
+      "field": "project.repository",
+      "value": "project.repository=NemProject/nem",
+      "total": 18,
+      "breaking": 18,
+      "control": 0,
+      "purity": 1
+    },
+    {
+      "field": "update.dependency",
+      "value": "update.dependency=org.springframework:spring-context",
+      "total": 18,
+      "breaking": 18,
+      "control": 0,
+      "purity": 1
+    },
+    {
+      "field": "update.dependency",
+      "value": "update.dependency=bom-2.289.x",
+      "total": 17,
+      "breaking": 0,
+      "control": 17,
+      "purity": 1
+    },
+    {
+      "field": "update.dependency",
+      "value": "update.dependency=org.junit.jupiter:junit-jupiter",
+      "total": 17,
+      "breaking": 0,
+      "control": 17,
+      "purity": 1
+    },
+    {
+      "field": "update.previousVersion",
+      "value": "update.previousVersion=1.2.11",
+      "total": 17,
+      "breaking": 17,
+      "control": 0,
+      "purity": 1
+    },
+    {
+      "field": "update.dependency",
+      "value": "update.dependency=org.eclipse.jetty:jetty-server",
+      "total": 16,
+      "breaking": 16,
+      "control": 0,
+      "purity": 1
+    },
+    {
+      "field": "update.dependency",
+      "value": "update.dependency=org.apache.maven.plugins:maven-compiler-plugin",
+      "total": 15,
+      "breaking": 0,
+      "control": 15,
+      "purity": 1
+    },
+    {
+      "field": "update.newVersion",
+      "value": "update.newVersion=4.0.0",
+      "total": 15,
+      "breaking": 15,
+      "control": 0,
+      "purity": 1
+    }
+  ],
+  "perfectSeparatorCount": 19,
+  "verdict": "PASS: no outcome-derived field reaches the model"
+}

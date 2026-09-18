@@ -1,0 +1,42 @@
+node_modules/
+.env
+.env.*
+!.env.example
+/tmp/
+
+# Local scratch
+*.log
+
+# Raw API cache
+data/raw/
+data/*.pool.jsonl
+data/control.dropped.jsonl
+
+# Raw per-case datasets contain GitHub PR text (titles/bodies/diffs/release notes)
+# and are withheld from the public repository. Rebuild with scripts/ (see data/README.md).
+data/bump.cases.jsonl
+data/control.cases.jsonl
+data/dataset.jsonl
+data/ood-dataset.jsonl
+data/subset200.jsonl
+data/subset200.meta.json
+data/smoke-mixed5.jsonl
+
+# Raw per-case model outputs and evaluator tables (reproducible; see REPRODUCIBILITY.md).
+results/*.jsonl
+results-ood/*.jsonl
+results-pilot200/
+results-smoke*/
+results-mock/
+results-mixed5/
+results-signal/
+report/
+report-ood/
+report-mixed5/
+report-smoke*/
+report-signal-openrouter/
+
+# Third-party agent skills / harness config
+.agents/
+.claude/
+skills-lock.json
