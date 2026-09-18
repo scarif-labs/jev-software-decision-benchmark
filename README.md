@@ -17,12 +17,11 @@ ranking quality (AUROC **0.851**) than static rules (**0.602**) and DeepSeek Fla
 (100 breaking / 85 control, 103 independent repositories), JEV retained the highest AUROC
 among the three (**0.605**, 95% CI 0.525–0.685) but the absolute performance fell sharply.
 The important negative finding is operational: JEV's **frozen in-distribution threshold did
-not transfer safely** — the threshold 0.62 produced 30 auto-merges at **50.0% precision**
+not transfer safely**. The threshold 0.62 produced 30 auto-merges at **50.0% precision**
 with **15 unsafe merges**. The benchmark found a strong in-distribution JEV ranking signal
 that weakened substantially under independent distribution shift. These results do not
 establish general superiority or inferiority of JEV as a general decision primitive.
 
-![AUROC comparison](analysis/figures/auc-comparison.svg)
 
 ## What we tested
 
@@ -32,9 +31,9 @@ automation workflow? Dependency-update automation is the test case, not the prod
 
 The benchmark separates three questions that are easy to conflate:
 
-1. **Decision / ranking quality** — does the score rank safe updates above unsafe ones?
-2. **Probability calibration** — do the numeric probabilities mean the same thing on new data?
-3. **Safe operational automation** — does a fixed threshold achieve a target precision on
+1. **Decision / ranking quality**: Does the score rank safe updates above unsafe ones?
+2. **Probability calibration**: Do the numeric probabilities mean the same thing on new data?
+3. **Safe operational automation**: Does a fixed threshold achieve a target precision on
    new data without unsafe actions?
 
 A system can do well on (1) while failing (2) and (3). That distinction is central to the
@@ -59,7 +58,7 @@ product development.
 
 - Scarif Labs: https://www.scariflabs.com/
 - GitHub organization: https://github.com/scarif-labs
-- Author: https://github.com/DPRC137
+- Authors: Alen Lawrance, Harikrishnan PS, Vishnu Prakash
 
 ## Experimental design
 
@@ -74,12 +73,12 @@ category, gold label) are never included. See `docs/benchmark.md` and
 
 **Systems compared.**
 
-- **JEV** (`jev-latest`) — one `Choice` question whose criteria are the three actions; the
+- **JEV** (`jev-latest`): One `Choice` question whose criteria are the three actions; the
   answer provides a probability distribution and confidence.
 - **DeepSeek Flash** (`~deepseek/deepseek-flash-latest`, returned as
-  `deepseek/deepseek-v4.1-flash`) — structured JSON `{decision, risk, confidence}`,
+  `deepseek/deepseek-v4.1-flash`): Structured JSON `{decision, risk, confidence}`,
   reasoning disabled, temperature 0.
-- **Static rules** — a deterministic Renovate-style policy over update type and CI status.
+- **Static rules**: A deterministic Renovate-style policy over update type and CI status.
 
 **Evaluation.** Ranking quality uses AUROC and average precision over the control class.
 Operational evaluation uses a threshold selected on a development split and applied
@@ -91,6 +90,8 @@ deployable frozen-policy numbers. See `METHODOLOGY.md`.
 
 All tables report the three systems with ranking metrics and operational metrics kept
 separate. Figures are in `analysis/figures/`; full tables are in `RESULTS.md`.
+
+![AUROC comparison](analysis/figures/auc-comparison.svg)
 
 ### In-distribution (1,102 cases)
 
@@ -124,6 +125,12 @@ on OOD: no threshold on these scores produced a non-empty safe policy even with 
 
 ![OOD risk–coverage](analysis/figures/ood-risk-coverage.svg)
 ![Frozen-policy comparison](analysis/figures/frozen-policy-comparison.svg)
+
+### Additional analysis
+
+![Score calibration](analysis/figures/score-calibration.svg)
+
+![Latency vs Cost](analysis/figures/latency-cost.svg)
 
 ## What we learned
 
@@ -159,7 +166,7 @@ All reported numbers are generated from canonical JSON artifacts by committed sc
 
 ```bash
 node scripts/generate_public_report.mjs   # RESULTS.md, docs/, results* summaries, manifest
-node scripts/make_figures.mjs             # analysis/figures/*.svg
+python scripts/make_figures.py              # analysis/figures/*.svg
 node scripts/verify_public_numbers.mjs    # cross-checks markdown against canonical JSON
 ```
 

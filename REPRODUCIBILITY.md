@@ -7,7 +7,7 @@ artifacts by committed scripts. No number is hand-typed in the generated outputs
 
 ```bash
 node scripts/generate_public_report.mjs   # RESULTS.md, docs/, results* summaries, data/MANIFEST.json
-node scripts/make_figures.mjs             # analysis/figures/*.svg
+python scripts/make_figures.py           # analysis/figures/*.svg
 ```
 
 `generate_public_report.mjs` asserts the headline numbers against the canonical JSON and

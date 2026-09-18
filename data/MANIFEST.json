@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-18T04:01:09.588Z",
+  "generatedAt": "2026-09-18T04:56:53.639Z",
   "note": "Hashes of datasets and artifacts. Raw case JSONL contain GitHub PR text (titles/bodies/diffs/release notes) and are NOT redistributed; use the reconstruction scripts with the recorded hashes to verify a rebuild.",
   "rawDatasetsWithheld": {
     "data/bump.cases.jsonl": {

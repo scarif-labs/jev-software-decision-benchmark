@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "engines": { "node": ">=20" },
+  "author": "Alen Lawrance, Harikrishnan PS, Vishnu Prakash",
   "scripts": {
     "bump": "node scripts/build_bump.mjs",
     "controls": "node scripts/build_controls.mjs && node scripts/verify_controls.mjs",
