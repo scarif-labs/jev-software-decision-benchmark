@@ -34,6 +34,14 @@ import matplotlib.patheffects as path_effects
 from matplotlib.patches import Patch
 from matplotlib.ticker import FuncFormatter
 
+try:
+    # adjustText provides robust label de-confliction; falls back to a
+    # simple manual algorithm if the library isn't installed.
+    from adjustText import adjust_text
+    _HAS_ADJUST_TEXT = True
+except ImportError:
+    _HAS_ADJUST_TEXT = False
+
 # ============================================================================
 # CONFIGURATION
 # ============================================================================
@@ -120,15 +128,23 @@ def fmt_count(x):
     return f"{int(round(x)):,}"
 
 
-def add_header(fig, title, subtitle):
-    fig.text(0.03, 0.97, title, fontsize=20, fontweight="bold",
+def add_header(fig, title, subtitle, *, title_y=0.97, subtitle_y=0.895):
+    """Place title + subtitle with enough vertical gap to avoid overlap.
+
+    Default gap = 0.075 normalized units ≈ 0.4" on a 5.5" figure, which
+    comfortably separates the 20pt title (with line-height) from the 12pt
+    subtitle. Pass lower `subtitle_y` for figures whose title wraps to two
+    lines, or raise `title_y` if the figure has very little top headroom.
+    """
+    fig.text(0.03, title_y, title, fontsize=20, fontweight="bold",
              color=C_TEXT, ha="left", va="top")
-    fig.text(0.03, 0.915, subtitle, fontsize=12, color=C_SUBTEXT,
+    fig.text(0.03, subtitle_y, subtitle, fontsize=12, color=C_SUBTEXT,
              ha="left", va="top")
 
 
-def add_footer(fig):
-    fig.text(0.97, 0.02, FOOTER_TEXT, fontsize=11, fontweight="bold",
+def add_footer(fig, *, y=0.025):
+    """Footer text — placed low but above the figure's bottom edge."""
+    fig.text(0.97, y, FOOTER_TEXT, fontsize=10, fontweight="bold",
              color=C_AXIS, ha="right", va="bottom")
 
 
@@ -215,7 +231,7 @@ def make_auroc():
         f"ID n\u2009=\u2009{fmt_count(ORIG_N)}, "
         f"OOD n\u2009=\u2009{fmt_count(OOD_N)}",
     )
-    fig.subplots_adjust(top=0.84, left=0.17, right=0.92, bottom=0.12)
+    fig.subplots_adjust(top=0.80, left=0.17, right=0.92, bottom=0.14)
 
     y = np.arange(len(models))
     h = 0.30
@@ -229,34 +245,43 @@ def make_auroc():
                 facecolor="white", edgecolor=m["color"],
                 linewidth=2.2, zorder=2)
 
-        # Value labels
-        ax.text(m["id"] + 0.012, y[i] + h / 2 + 0.03,
+        # Confidence-interval whisker (JEV only) — drawn UNDER the label
+        # so the label never visually clashes with the whisker caps.
+        if "ci" in m:
+            lo, hi = m["ci"]
+            ax.errorbar(
+                m["ood"], y[i] - h / 2 - 0.03,
+                xerr=[[m["ood"] - lo], [hi - m["ood"]]],
+                fmt="none", ecolor=m["color"],
+                elinewidth=2, capsize=5, zorder=2.5, alpha=0.7,
+            )
+
+        # Compute right edge of any CI whisker for label placement
+        right_edge = m["ood"]
+        if "ci" in m:
+            right_edge = m["ci"][1]
+        # Place value labels at the whisker's right edge + a small pad,
+        # so they never sit on top of the whisker caps or bar outline.
+        label_x = max(m["id"], right_edge) + 0.018
+        ax.text(label_x, y[i] + h / 2 + 0.03,
                 f'{m["id"]:.3f}', va="center", fontsize=12,
                 fontweight="bold", color=m["color"], path_effects=HALO)
-        ax.text(m["ood"] + 0.012, y[i] - h / 2 - 0.03,
+        ax.text(label_x, y[i] - h / 2 - 0.03,
                 f'{m["ood"]:.3f}', va="center", fontsize=12,
                 color=m["color"], path_effects=HALO)
 
-        # # Confidence-interval whisker (JEV only)
-        # if "ci" in m:
-        #     lo, hi = m["ci"]
-        #     ax.errorbar(
-        #         m["ood"], y[i] - h / 2 - 0.03,
-        #         xerr=[[m["ood"] - lo], [hi - m["ood"]]],
-        #         fmt="none", ecolor=m["color"],
-        #         elinewidth=2, capsize=5, zorder=3,
-        #     )
-
-    # Chance reference
+    # Chance reference — label sits BELOW the line, near the bottom of the
+    # plot, so it never overlaps the top bar or the plot's upper border.
     ax.axvline(0.5, color=C_AXIS, linestyle=":", linewidth=1.8, zorder=1)
-    ax.text(0.5, len(models) - 0.6, "chance", ha="center", va="bottom",
+    ax.text(0.5, -0.55, "chance", ha="center", va="bottom",
             fontsize=11, color=C_SUBTEXT, fontstyle="italic")
 
     ax.set_yticks(y)
     ax.set_yticklabels(
         [m["name"] for m in models], fontsize=14, fontweight="bold",
     )
-    ax.set_xlim(0.42, 0.92)
+    # Widen right margin slightly so the AUROC value labels always fit.
+    ax.set_xlim(0.42, 0.96)
     ax.set_xlabel("AUROC")
     add_grid(ax, axis="x")
 
@@ -279,8 +304,18 @@ def make_auroc():
 # ============================================================================
 
 def _rc_panel(ax, series, xlim, ylim, panel_title):
-    """One precision-vs-coverage panel with step lines and direct labels."""
+    """One precision-vs-coverage panel with step lines and direct labels.
+
+    End-of-line labels are de-conflicted via `adjustText` when available
+    so series whose final coverage values sit close together don't
+    visually stack on top of each other. Falls back to a simple
+    sort-and-stack algorithm if `adjustText` is not installed.
+    """
     add_grid(ax)
+
+    label_texts = []   # matplotlib Text objects for adjust_text
+    label_targets = []  # (x, y) the labels would naturally sit at
+
     for s in series:
         pts = sorted(s["pts"], key=lambda p: p["coverage"])
         if not pts:
@@ -293,18 +328,77 @@ def _rc_panel(ax, series, xlim, ylim, panel_title):
                     alpha=0.45, linewidth=2.5, zorder=2)
         ax.scatter(cov, prec, color=s["color"], s=30, zorder=3, alpha=0.8)
 
-        # Direct end-of-line label
+        # Direct end-of-line label — initial position at the natural
+        # endpoint; adjust_text (or the manual fallback) will move it
+        # to avoid overlap with sibling labels.
         x_pad = (xlim[1] - xlim[0]) * 0.015
-        ax.text(cov[-1] + x_pad, prec[-1], s["label"],
-                color=s["color"], fontsize=11, fontweight="bold",
-                va="center", ha="left", path_effects=HALO, clip_on=False)
+        t = ax.text(cov[-1] + x_pad, prec[-1], s["label"],
+                    color=s["color"], fontsize=11, fontweight="bold",
+                    va="center", ha="left", path_effects=HALO, clip_on=False)
+        label_texts.append(t)
+        label_targets.append((cov[-1] + x_pad, prec[-1], s["color"]))
 
-    # 99% precision target
+    # De-conflict labels
+    if _HAS_ADJUST_TEXT and label_texts:
+        # Pull labels back inside the panel if they wandered off, and
+        # let adjust_text find non-overlapping positions.
+        adjust_text(
+            label_texts,
+            ax=ax,
+            only_move={"text": "y"},
+            expand_text=(1.2, 1.4),
+            avoid_self=True,
+            autoalign="center",
+        )
+    else:
+        # Manual fallback: sort endpoints by natural y (desc) and push
+        # each label down (or up) until it clears the previous one.
+        label_min_dy = (ylim[1] - ylim[0]) * 0.06
+        placed_y = []
+        # Order labels by natural y descending so they stack top-down
+        order = sorted(
+            range(len(label_targets)),
+            key=lambda i: -label_targets[i][1],
+        )
+        for idx in order:
+            x, y, _color = label_targets[idx]
+            target_y = y
+            for py in placed_y:
+                if abs(target_y - py) < label_min_dy:
+                    if target_y - label_min_dy >= ylim[0]:
+                        target_y = py - label_min_dy
+                    else:
+                        target_y = py + label_min_dy
+            # Second pass to handle cascade collisions
+            for _ in range(5):
+                collided = False
+                for py in placed_y:
+                    if abs(target_y - py) < label_min_dy:
+                        target_y = py - label_min_dy if (
+                            target_y - py <= 0 and target_y - label_min_dy >= ylim[0]
+                        ) else py + label_min_dy
+                        collided = True
+                        break
+                if not collided:
+                    break
+            placed_y.append(target_y)
+            label_texts[idx].set_position((x, target_y))
+            # Draw a thin leader line from the data point to the label
+            # so the visual association is preserved when the label
+            # is moved away from its natural position.
+            if abs(target_y - y) > 1e-3:
+                x_data = x - (xlim[1] - xlim[0]) * 0.015  # back to marker
+                ax.plot([x_data, x],
+                        [label_targets[idx][1], target_y],
+                        color=_color, linewidth=0.8, alpha=0.6, zorder=2.5)
+
+    # 99% precision target — label sits just BELOW the line so it never
+    # overlaps the 100% grid line at the top of the panel.
     ax.axhline(0.99, color=C_GUIDE, linestyle="--", alpha=0.5,
                linewidth=1.5, zorder=1)
     ax.axhspan(0.99, ylim[1], color=C_GUIDE, alpha=0.04, zorder=0)
-    ax.text(xlim[1] * 0.97, 0.993, "99% target", color=C_GUIDE,
-            fontsize=10, ha="right", va="bottom", fontstyle="italic")
+    ax.text(xlim[1] * 0.97, 0.985, "99% target", color=C_GUIDE,
+            fontsize=10, ha="right", va="top", fontstyle="italic")
 
     ax.set_xlim(*xlim)
     ax.set_ylim(*ylim)
@@ -351,8 +445,8 @@ def make_risk_coverage():
         "Risk-coverage trade-off collapses on OOD",
         "Precision vs coverage at varying thresholds · retrospective / oracle selection",
     )
-    fig.subplots_adjust(top=0.84, left=0.07, right=0.95,
-                        bottom=0.12, wspace=0.06)
+    fig.subplots_adjust(top=0.80, left=0.07, right=0.93,
+                        bottom=0.14, wspace=0.06)
 
     _rc_panel(ax1, orig, xlim=(0, orig_xmax), ylim=(ymin, 1.015),
               panel_title=f"In-distribution (n\u2009=\u2009{fmt_count(ORIG_N)})")
@@ -404,10 +498,15 @@ def make_frozen_policy():
         "Frozen policies: every system produced unsafe merges on OOD",
         "Threshold frozen from original benchmark (all had 100% precision in-distribution)",
     )
-    fig.subplots_adjust(top=0.82, left=0.18, right=0.85, bottom=0.12)
+    fig.subplots_adjust(top=0.80, left=0.18, right=0.80, bottom=0.14)
 
     y = np.arange(len(systems))
     h = 0.55
+    # Compute max bar width once so the external text always has a
+    # consistent, comfortable padding regardless of how small a
+    # particular bar is.
+    max_auto = max(s["ood"]["autoMerged"] for s in systems)
+    text_pad = max_auto * 0.025 + 1.5   # at least 1.5 cases, plus 2.5% of max
 
     for i, s in enumerate(systems):
         auto   = s["ood"]["autoMerged"]
@@ -421,9 +520,10 @@ def make_frozen_policy():
         ax.barh(y[i], unsafe, h, left=safe, color=C_UNSAFE, alpha=0.75,
                 zorder=2, label="Unsafe" if i == 0 else "")
 
-        # Labels after bar
+        # Labels after bar — use generous padding so the text never
+        # collides with the right edge of the bar.
         ax.text(
-            auto + 1.5, y[i],
+            auto + text_pad, y[i],
             f"{fmt_pct(prec)} precision  ·  {unsafe} unsafe",
             va="center", fontsize=12, fontweight="bold", color=C_TEXT,
         )
@@ -441,8 +541,9 @@ def make_frozen_policy():
         [s["name"] for s in systems], fontsize=14, fontweight="bold",
     )
     ax.set_xlabel("Auto-merged cases (OOD)")
-    max_auto = max(s["ood"]["autoMerged"] for s in systems)
-    ax.set_xlim(0, max_auto * 2.2)
+    # Right margin widened from 2.2× to 2.6× so the external label has
+    # room to breathe even for the longest "X% precision  ·  N unsafe".
+    ax.set_xlim(0, max_auto * 2.6)
     add_grid(ax, axis="x")
 
     ax.legend(
@@ -476,8 +577,12 @@ def make_ecosystem_auroc():
         "OOD signal concentrates in JavaScript — other ecosystems near or below chance",
         f"JEV AUROC by ecosystem on OOD data · "
         f"original benchmark (all Java/Maven) AUROC\u2009=\u2009{jev_id:.3f}",
+        # Subtitle pulled down a hair more so the long title (which can
+        # render close to the figure top) never visually overlaps the
+        # subtitle line under any font-metric variation.
+        subtitle_y=0.885,
     )
-    fig.subplots_adjust(top=0.82, left=0.16, right=0.92, bottom=0.12)
+    fig.subplots_adjust(top=0.80, left=0.16, right=0.93, bottom=0.14)
 
     y_pos = np.arange(len(valid))
     h = 0.6
@@ -486,24 +591,28 @@ def make_ecosystem_auroc():
         color = C_JEV if e["jevAuroc"] >= 0.5 else C_UNSAFE
         ax.barh(y_pos[i], e["jevAuroc"], h, color=color, alpha=0.8,
                 zorder=2)
+        # Label always placed a fixed 0.018 outside the bar's right edge,
+        # which is enough for the longest expected "0.XXX   (n=NN)" even
+        # when the bar itself is very short (e.g., Go at 0.100).
         ax.text(
-            e["jevAuroc"] + 0.015, y_pos[i],
+            e["jevAuroc"] + 0.018, y_pos[i],
             f'{e["jevAuroc"]:.3f}   (n\u2009=\u2009{e["n"]})',
             va="center", fontsize=12, fontweight="bold",
             color=color, path_effects=HALO,
         )
 
-    # Chance line
+    # Chance line — label sits below the line near the bottom of the chart,
+    # so it doesn't clash with the top bar or the plot's upper border.
     ax.axvline(0.5, color=C_AXIS, linestyle=":", linewidth=1.8, zorder=1)
-    ax.text(0.5, len(valid) - 0.55, "chance", ha="center", va="bottom",
+    ax.text(0.5, 3.5, "chance", ha="center", va="bottom",
             fontsize=11, color=C_SUBTEXT, fontstyle="italic")
 
     # ID reference
     ax.axvline(jev_id, color=C_JEV, linestyle="--", linewidth=1.5,
                alpha=0.5, zorder=1)
-    ax.text(jev_id + 0.01, -0.55,
+    ax.text(jev_id + 0.01, -0.49,
             f"ID benchmark: {jev_id:.3f}", fontsize=10,
-            color=C_JEV, fontstyle="italic", va="top")
+            color=C_JEV, fontstyle="italic", va="bottom")
 
     labels = [e["value"].capitalize() for e in valid]
     ax.set_yticks(y_pos)
@@ -516,7 +625,7 @@ def make_ecosystem_auroc():
     excluded = [e for e in eco_data if e["jevAuroc"] is None]
     if excluded:
         names = ", ".join(e["value"] for e in excluded)
-        ax.text(0.98, 0.02, f"Excluded (one-class or too small): {names}",
+        ax.text(0.85, 0.3, f"Excluded (one-class or too small): {names}",
                 transform=ax.transAxes, fontsize=9, color=C_SUBTEXT,
                 ha="right", va="bottom")
 
@@ -552,7 +661,9 @@ def make_calibration():
         "Deviation from ideal · observed safe rate \u2212 predicted score · "
         "positive\u2009=\u2009conservative, negative\u2009=\u2009overconfident",
     )
-    fig.subplots_adjust(top=0.82, left=0.08, right=0.95, bottom=0.14)
+    # top=0.78 reserves headroom for title + subtitle + an inline legend
+    # placed just below the subtitle (see fig.legend below).
+    fig.subplots_adjust(top=0.78, left=0.08, right=0.95, bottom=0.14)
 
     w = 0.035
     c_arr = np.array(centers)
@@ -575,30 +686,49 @@ def make_calibration():
 
     # Axis limits
     all_devs = [d for d in dev_orig + dev_ood if d is not None]
-    y_lo = min(all_devs) * 1.2
-    y_hi = max(all_devs) * 1.2
+    y_lo = min(all_devs) * 1.25
+    y_hi = max(all_devs) * 1.25
     ax.set_ylim(y_lo, y_hi)
     ax.set_xlim(-0.02, 1.02)
 
-    # Zone labels
-    ax.text(0.97, y_hi * 0.45, "Conservative (safe direction)",
-            fontsize=10, color=C_SAFE, ha="right", fontstyle="italic",
-            alpha=0.7)
-    ax.text(0.97, y_lo * 0.35, "Overconfident (dangerous)",
-            fontsize=10, color=C_UNSAFE, ha="right", fontstyle="italic",
-            alpha=0.7)
+    # Zone labels are folded into the y-axis label so they don't compete
+    # with the ID bars at the low-score bins (which often sit in the
+    # same upper-left or lower-left region as the zone labels).
+    ax.set_ylabel(
+        "Calibration error\n"
+        "+ conservative (safe)  /  \u2212 overconfident (dangerous)",
+        fontsize=12,
+    )
 
-    # Annotate the 0.85-bin OOD extreme
+    # Annotate the 0.85-bin OOD extreme.
+    #   * The text box sits in the UPPER half (positive deviation zone,
+    #     mostly empty for high-score bins), directly above the 85% bar.
+    #   * A STRAIGHT VERTICAL arrow drops from the text down to the bar's
+    #     tip. Because the arrow is at the 85% bin's x position only, it
+    #     crosses no other bars on its way down.
+    #   * No bbox is used — instead a white halo (path_effects) keeps the
+    #     text readable on any background without an opaque rectangle
+    #     that could obscure adjacent bars (e.g. the 95% OOD bar).
     idx_85 = 8  # 0.85 center
     if dev_ood[idx_85] is not None:
         obs = ood_bins[idx_85]["controlRate"]
+        bar_x = c_arr[idx_85] + w * 0.6
+        # Place text at 85% of the way up the positive y-range; if all
+        # deviations are negative (no positive zone), place it just
+        # above the y=0 axis line so the text sits in clear space.
+        if y_hi > 0.02:
+            text_y = y_hi * 0.85
+        else:
+            text_y = 0.05  # slightly above zero, in the empty headroom
         ax.annotate(
             f"Predicts 85% safe\nActual: {fmt_pct(obs)} safe",
-            xy=(c_arr[idx_85] + w * 0.6, dev_ood[idx_85]),
-            xytext=(0.62, y_lo * 0.65),
+            xy=(bar_x, dev_ood[idx_85]),
+            xytext=(bar_x, text_y),
             fontsize=10, color=C_UNSAFE, fontweight="bold",
-            arrowprops=dict(arrowstyle="->", color=C_UNSAFE, linewidth=1.5),
-            ha="center",
+            arrowprops=dict(arrowstyle="->", color=C_UNSAFE, linewidth=1.5,
+                            connectionstyle="arc3,rad=0"),
+            ha="center", va="center",
+            path_effects=HALO,
         )
 
     ax.set_xticks(c_arr)
@@ -607,14 +737,20 @@ def make_calibration():
     ax.set_ylabel("Calibration error")
     add_grid(ax, axis="y")
 
-    ax.legend(
+    # Legend placed at the FIGURE level in the headroom between the
+    # subtitle and the axes. This keeps it from overlapping the leftmost
+    # ID bar (which sits at the 5% bin) and from competing with the
+    # "Conservative / Overconfident" zone labels.
+    fig.legend(
         handles=[
             Patch(facecolor=C_JEV, alpha=0.7,
                   label=f"In-distribution (n\u2009=\u2009{fmt_count(ORIG_N)})"),
             Patch(facecolor="white", edgecolor=C_JEV, linewidth=2,
                   label=f"OOD (n\u2009=\u2009{fmt_count(OOD_N)})"),
         ],
-        loc="upper left", fontsize=11,
+        loc="upper left",
+        bbox_to_anchor=(0.08, 0.86),
+        ncol=2, fontsize=11, frameon=False,
     )
 
     add_footer(fig)
@@ -656,7 +792,9 @@ def make_decision_agreement():
         f"Pairwise decision agreement on original benchmark "
         f"(n\u2009=\u2009{fmt_count(ORIG_N)})",
     )
-    fig.subplots_adjust(top=0.84, left=0.20, right=0.95, bottom=0.10)
+    # bottom bumped from 0.10 → 0.20 to give xtick labels and the
+    # "all three disagreed" note their own bands below the heatmap.
+    fig.subplots_adjust(top=0.80, left=0.20, right=0.95, bottom=0.20)
 
     im = ax.imshow(agree, cmap="Blues", vmin=25, vmax=100, aspect="equal")
 
@@ -685,16 +823,20 @@ def make_decision_agreement():
         spine.set_visible(False)
     ax.tick_params(length=0)
 
-    # All-three-disagree note
+    # All-three-disagree note placed as a figure-level text well BELOW
+    # the xtick labels (no longer in axes coords), so it can't overlap
+    # the "DeepSeek Flash" tick label even when that label wraps.
     all3 = counts["all_three_disagree"]
-    ax.text(
-        0.59, -0.1,
+    fig.text(
+        0.5, 0.07,
         f"All three disagreed on {all3} cases ({all3 / n * 100:.1f}%)",
-        transform=ax.transAxes, fontsize=11, color=C_SUBTEXT,
+        fontsize=11, color=C_SUBTEXT,
         ha="center", va="top",
     )
 
-    #add_footer(fig)
+    # Footer pushed down (y=0.015) so it sits below the all-three-disagree
+    # note rather than competing with the "Static rules" xtick label.
+    add_footer(fig, y=0.015)
     save_fig(fig, "decision-agreement")
 
 
@@ -720,11 +862,16 @@ def make_latency_cost():
         f"Mean latency and cost per 1,000 decisions · "
         f"OOD run (n\u2009=\u2009{fmt_count(OOD_N)})",
     )
-    fig.subplots_adjust(top=0.78, left=0.14, right=0.95,
-                        bottom=0.15, wspace=0.35)
+    # bottom bumped from 0.15 → 0.22 to give the x-axis labels room to
+    # breathe below the footer text; top from 0.78 → 0.74 to keep the
+    # header from running into the chart titles on this short figure.
+    fig.subplots_adjust(top=0.74, left=0.14, right=0.95,
+                        bottom=0.22, wspace=0.35)
 
     y = np.arange(len(systems))
     h = 0.55
+    max_lat = max(latencies)
+    max_cst = max(costs)
 
     # ── Latency panel ────────────────────────────────────────────────────
     for i in range(len(systems)):
@@ -733,8 +880,11 @@ def make_latency_cost():
         lbl = f"{latencies[i]:,.0f} ms" if latencies[i] > 0 else "0 ms"
         if p95s[i] > 0:
             lbl += f"  (p95: {p95s[i]:,.0f})"
+        # Padding proportional to the widest bar so labels never crowd
+        # the bar end — uses ~3% of the longest bar as a buffer.
+        lat_pad = max(max_lat * 0.025, 40)
         ax1.text(
-            max(latencies[i] + 40, 80), y[i], lbl,
+            max(latencies[i] + lat_pad, lat_pad * 1.5), y[i], lbl,
             va="center", fontsize=11, fontweight="bold",
             color=colors[i], path_effects=HALO,
         )
@@ -742,7 +892,9 @@ def make_latency_cost():
     ax1.set_yticks(y)
     ax1.set_yticklabels(systems, fontsize=13, fontweight="bold")
     ax1.set_xlabel("Mean latency (ms)")
-    ax1.set_xlim(0, max(latencies) * 1.4)
+    # Widen xlim slightly so the longest data label always fits inside
+    # the axes — avoids clipping the "(p95: ...)" tail.
+    ax1.set_xlim(0, max_lat * 1.55)
     ax1.set_title("Latency", fontsize=14, fontweight="bold", pad=10)
     add_grid(ax1, axis="x")
 
@@ -751,8 +903,9 @@ def make_latency_cost():
         ax2.barh(y[i], costs[i], h, color=colors[i],
                  alpha=0.8, zorder=2)
         lbl = fmt_cost(costs[i]) if costs[i] > 0 else "\\$0"
+        cost_pad = max(max_cst * 0.025, 0.012)
         ax2.text(
-            max(costs[i] + 0.01, 0.025), y[i], lbl,
+            max(costs[i] + cost_pad, cost_pad * 1.5), y[i], lbl,
             va="center", fontsize=11, fontweight="bold",
             color=colors[i], path_effects=HALO,
         )
@@ -760,11 +913,13 @@ def make_latency_cost():
     ax2.set_yticks(y)
     ax2.set_yticklabels(["" for _ in systems])
     ax2.set_xlabel("Cost per 1,000 cases (USD)")
-    ax2.set_xlim(0, max(costs) * 1.4)
+    ax2.set_xlim(0, max_cst * 1.55)
     ax2.set_title("Cost", fontsize=14, fontweight="bold", pad=10)
     add_grid(ax2, axis="x")
 
-    #add_footer(fig)
+    # Footer pushed down so it never sits next to the cost panel's
+    # xlabel on this short figure.
+    add_footer(fig, y=0.015)
     save_fig(fig, "latency-cost")
 
 
