@@ -1,684 +1,828 @@
+#!/usr/bin/env python3
 """
-Figure generation for the JEV auto-merge evaluation report.
+Figure generation for the JEV dependency-update benchmark.
 
-Produces six figures comparing JEV against a DeepSeek Flash baseline and a
-static-rules baseline, on an original in-distribution benchmark and an
-out-of-distribution (OOD) validation set:
+Produces seven figures plus a contact sheet:
+    1. auroc-comparison       — AUROC grouped bar, ID vs OOD
+    2. risk-coverage          — precision/coverage, ID and OOD side-by-side
+    3. frozen-policy-transfer — stacked bar: safe + unsafe auto-merges on OOD
+    4. ecosystem-auroc        — JEV AUROC by ecosystem on OOD
+    5. score-calibration      — calibration error deviation from ideal
+    6. decision-agreement     — pairwise agreement heatmap
+    7. latency-cost           — bar comparison of latency and cost
 
-    1. original-risk-coverage   - precision/coverage trade-off, original benchmark
-    2. ood-risk-coverage        - precision/coverage trade-off, OOD validation
-    3. auc-comparison           - ranking quality (AUROC), original vs OOD
-    4. score-calibration        - predicted score vs observed outcome rate
-    5. latency-cost             - operational cost/latency, original vs OOD
-    6. frozen-policy-comparison - precision/coverage/unsafe-merges when a
-                                   threshold frozen on the original split is
-                                   applied unchanged to OOD data
+Design principles:
+    - Tufte: maximize data-ink ratio, no chartjunk
+    - Consistent semantic colors: JEV = blue, DeepSeek = orange, Static = slate
+    - Filled bars = in-distribution, outlined = OOD
+    - Direct labeling over legends where possible
+    - Correct chart types: bars for categories, lines for continuous curves
 
-Design language shared across all six figures:
-    - filled circle  = original / in-distribution benchmark
-    - hollow square  = OOD validation (same series color, unfilled)
-    - JEV = C_JEV, DeepSeek Flash = C_DEEPSEEK, Static rules = C_RULES (fixed
-      throughout; never reassigned per-figure)
-    - percentages, currency and counts are formatted with the shared
-      formatters below so every figure reads the same way
+Usage:
+    python scripts/make_figures.py
 """
 
 import json
 import math
 import os
-from typing import Callable, Optional, Sequence
 
 import numpy as np
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as path_effects
-from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
 from matplotlib.ticker import FuncFormatter
 
-# ----------------------------------------------------------------------------
-# CONFIGURATION & THEME
-# ----------------------------------------------------------------------------
+# ============================================================================
+# CONFIGURATION
+# ============================================================================
+
 OUT_DIR = "analysis/figures"
 os.makedirs(OUT_DIR, exist_ok=True)
+DPI = 200
 
-FIGURE_DPI = 200  # crisp PNGs; SVGs are exported alongside and are resolution-independent
-
-# Semantic colors. Each model keeps one fixed color everywhere it appears;
-# the original-vs-OOD distinction is carried by marker fill (filled vs
-# hollow), never by introducing a second color for the same series.
-C_JEV = "#0284c7"
-C_DEEPSEEK = "#ea580c"
-C_RULES = "#64748b"
-C_TEXT = "#0f172a"
-C_SUBTEXT = "#475569"
-C_AXIS = "#94a3b8"
-C_GRID = "#f1f5f9"
-C_GUIDE = "#ef4444"  # reserved for the target-precision threshold only
+# Semantic palette — each model keeps one colour everywhere.
+C_JEV      = "#0284c7"      # sky-600
+C_DEEPSEEK = "#ea580c"      # orange-600
+C_RULES    = "#64748b"      # slate-500
+C_SAFE     = "#16a34a"      # green-600
+C_UNSAFE   = "#dc2626"      # red-600
+C_TEXT     = "#0f172a"       # slate-900
+C_SUBTEXT  = "#475569"      # slate-600
+C_AXIS     = "#94a3b8"      # slate-400
+C_GRID     = "#f1f5f9"      # slate-100
+C_GUIDE    = "#ef4444"      # red-500
 
 FOOTER_TEXT = "S C A R I F   L A B S  ·  R E S E A R C H"
-TEXT_HALO = [path_effects.withStroke(linewidth=3, foreground="white")]
+HALO = [path_effects.withStroke(linewidth=3, foreground="white")]
 
 plt.rcParams.update({
-    "font.family": "sans-serif",
-    "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans"],
-    "text.color": C_TEXT,
-    "axes.labelcolor": C_TEXT,
-    "axes.edgecolor": C_AXIS,
-    "axes.linewidth": 1.5,
-    "axes.spines.top": False,
-    "axes.spines.right": False,
-    "xtick.color": C_SUBTEXT,
-    "ytick.color": C_SUBTEXT,
-    "xtick.major.size": 6,
-    "ytick.major.size": 6,
-    "xtick.major.width": 1.5,
-    "ytick.major.width": 1.5,
-    "xtick.labelsize": 14,
-    "ytick.labelsize": 14,
-    "axes.labelsize": 16,
-    "axes.titlesize": 18,
-    "axes.titleweight": "bold",
-    "figure.titlesize": 24,
-    "figure.titleweight": "bold",
-    "grid.color": C_GRID,
-    "grid.linewidth": 1.5,
-    "legend.fontsize": 14,
-    "legend.frameon": False,
-    "figure.figsize": (16, 9),
-    "figure.facecolor": "#ffffff",
-    "axes.facecolor": "#ffffff",
-    "savefig.bbox": "tight",
+    "font.family":        "sans-serif",
+    "font.sans-serif":    ["Inter", "Helvetica Neue", "Arial", "DejaVu Sans"],
+    "text.color":         C_TEXT,
+    "axes.labelcolor":    C_TEXT,
+    "axes.edgecolor":     C_AXIS,
+    "axes.linewidth":     1.2,
+    "axes.spines.top":    False,
+    "axes.spines.right":  False,
+    "xtick.color":        C_SUBTEXT,
+    "ytick.color":        C_SUBTEXT,
+    "xtick.major.size":   5,
+    "ytick.major.size":   5,
+    "xtick.major.width":  1.2,
+    "ytick.major.width":  1.2,
+    "xtick.labelsize":    12,
+    "ytick.labelsize":    12,
+    "axes.labelsize":     14,
+    "axes.titlesize":     16,
+    "axes.titleweight":   "bold",
+    "grid.color":         C_GRID,
+    "grid.linewidth":     1,
+    "legend.fontsize":    12,
+    "legend.frameon":     False,
+    "figure.facecolor":   "#ffffff",
+    "axes.facecolor":     "#ffffff",
+    "savefig.bbox":       "tight",
     "savefig.pad_inches": 0.3,
 })
 
 
-# ----------------------------------------------------------------------------
-# FORMATTING UTILITIES
-# (centralized so every figure renders numbers the same way; see section 9
-#  of the design brief - no chart should show "23.50%" next to another
-#  chart's "23.5%")
-# ----------------------------------------------------------------------------
-def format_percent(x: float, decimals: int = 1) -> str:
-    """0.235 -> '23.5%'; 0.20 -> '20%' (trailing .0 dropped); 1.0 -> '100%'."""
-    val = round(x * 100, decimals)
-    s = f"{val:.{decimals}f}"
-    if decimals > 0:
+# ============================================================================
+# UTILITIES
+# ============================================================================
+
+def load_json(path):
+    with open(path) as f:
+        return json.load(f)
+
+
+def fmt_pct(x, d=1):
+    """0.504 → '50.4%'; 1.0 → '100%'."""
+    val = round(x * 100, d)
+    s = f"{val:.{d}f}"
+    if d > 0:
         whole, frac = s.split(".")
-        if int(frac) == 0:
+        if all(c == "0" for c in frac):
             s = whole
     return f"{s}%"
 
 
-def format_cost(x: float) -> str:
-    """Adaptive-precision USD-per-1k-cases label: enough decimals to
-    distinguish small costs, but trailing zeros are trimmed so $0.310
-    (from a naive fixed-precision format) reads as $0.31."""
+def fmt_cost(x):
     if x == 0:
-        return "$0"
-    decimals = 4 if abs(x) < 0.01 else 3 if abs(x) < 1 else 2
-    s = f"{x:,.{decimals}f}"
-    int_part, frac_part = s.split(".")
-    frac_part = frac_part.rstrip("0")
-    s = int_part if frac_part == "" else f"{int_part}.{frac_part}"
-    return f"${s}"
+        return "\\$0"
+    d = 4 if abs(x) < 0.01 else 3 if abs(x) < 1 else 2
+    s = f"{x:.{d}f}".rstrip("0").rstrip(".")
+    return f"\\${s}"
 
 
-def format_count(x: float) -> str:
+def fmt_count(x):
     return f"{int(round(x)):,}"
 
 
-def nice_upper_bound(value: float, pad_frac: float = 0.18) -> float:
-    """Round a data-driven max up to a visually clean axis ceiling, so a
-    hardcoded xmax can never silently clip real data (section 23: edge cases)."""
-    padded = max(value, 1e-9) * (1 + pad_frac)
-    magnitude = 10 ** math.floor(math.log10(padded))
-    step = magnitude / 2 if padded / magnitude < 5 else magnitude
-    return math.ceil(padded / step) * step
+def add_header(fig, title, subtitle):
+    fig.text(0.03, 0.97, title, fontsize=20, fontweight="bold",
+             color=C_TEXT, ha="left", va="top")
+    fig.text(0.03, 0.915, subtitle, fontsize=12, color=C_SUBTEXT,
+             ha="left", va="top")
 
 
-def declutter_1d(values: Sequence[float], min_gap: float) -> list:
-    """Nudge a small set of 1-D positions apart just enough that labels
-    placed at them won't overlap, preserving order and total displacement.
-    Used both for end-of-line labels (vertical) and paired value labels
-    (horizontal) - see plot_dumbbell_row."""
-    order = sorted(range(len(values)), key=lambda i: values[i])
-    adjusted = [values[i] for i in order]
-    for _ in range(50):
-        moved = False
-        for i in range(1, len(adjusted)):
-            gap = adjusted[i] - adjusted[i - 1]
-            if gap < min_gap:
-                shift = (min_gap - gap) / 2
-                adjusted[i - 1] -= shift
-                adjusted[i] += shift
-                moved = True
-        if not moved:
-            break
-    result = [0.0] * len(values)
-    for rank, i in enumerate(order):
-        result[i] = adjusted[rank]
-    return result
+def add_footer(fig):
+    fig.text(0.97, 0.02, FOOTER_TEXT, fontsize=11, fontweight="bold",
+             color=C_AXIS, ha="right", va="bottom")
 
 
-PCT_FORMATTER = FuncFormatter(lambda x, _pos: format_percent(x, 0))
+def add_grid(ax, axis="both"):
+    ax.grid(True, axis=axis, linestyle="-", color=C_GRID,
+            linewidth=1, zorder=0)
 
 
-# ----------------------------------------------------------------------------
-# LAYOUT & STYLE UTILITIES
-# ----------------------------------------------------------------------------
-def load_json(path: str) -> dict:
-    try:
-        with open(path) as f:
-            return json.load(f)
-    except FileNotFoundError as exc:
-        raise FileNotFoundError(
-            f"Required input file not found: '{path}'. This script expects it "
-            f"relative to the current working directory."
-        ) from exc
-
-
-def add_header(fig, title: str, subtitle: str) -> None:
-    """Draws the title/subtitle only. Layout margins are set per-figure via
-    fig.subplots_adjust(...) so a multi-panel figure can use different
-    margins than a single-axes one without the two responsibilities
-    fighting each other."""
-    fig.text(0.02, 0.98, title, fontsize=28, fontweight="bold", color=C_TEXT, ha="left", va="top")
-    fig.text(0.02, 0.93, subtitle, fontsize=17, color=C_SUBTEXT, ha="left", va="top")
-
-
-def add_footer(fig) -> None:
-    fig.text(0.98, 0.02, FOOTER_TEXT, fontsize=14, fontweight="bold", color=C_AXIS,
-              ha="right", va="bottom")
-
-
-def add_condition_key(ax, loc: str = "lower right", color: str = C_SUBTEXT):
-    """The one legend every multi-condition figure needs: what filled vs.
-    hollow markers mean. Reused rather than re-derived per figure.
-
-    Registers itself with ax.add_artist so it survives a second ax.legend()
-    call later on the same axes (e.g. the calibration chart's sample-size
-    legend) - without this, matplotlib silently drops whichever legend was
-    added first."""
-    handles = [
-        Line2D([0], [0], marker="o", color="none", markerfacecolor=color,
-               markeredgecolor=color, markersize=11, label="Original benchmark"),
-        Line2D([0], [0], marker="s", color="none", markerfacecolor="white",
-               markeredgecolor=color, markeredgewidth=2, markersize=11, label="OOD validation"),
-    ]
-    legend = ax.legend(handles=handles, loc=loc, frameon=False, fontsize=13, handletextpad=0.6)
-    ax.add_artist(legend)
-    return legend
-
-
-def style_grid(ax, axis: str = "both") -> None:
-    ax.grid(True, axis=axis, linestyle="-", color=C_GRID, linewidth=1.5, zorder=0)
-
-
-def export_figure(fig, name: str) -> None:
-    fig.savefig(os.path.join(OUT_DIR, f"{name}.png"), dpi=FIGURE_DPI)
+def save_fig(fig, name):
+    fig.savefig(os.path.join(OUT_DIR, f"{name}.png"), dpi=DPI)
     fig.savefig(os.path.join(OUT_DIR, f"{name}.svg"))
     plt.close(fig)
+    print(f"  ✓ {name}")
 
 
-# ----------------------------------------------------------------------------
-# SHARED PLOTTING PRIMITIVES
-# ----------------------------------------------------------------------------
-def plot_risk_coverage_panel(
-    ax,
-    series: list,
-    xlim: tuple,
-    ylim: tuple,
-    target: Optional[tuple] = None,
-    target_label: str = "",
-    label_fontsize: float = 15,
-) -> None:
-    """One precision-vs-coverage panel: step line + markers per series, an
-    optional target band, and direct end-of-line labels (no legend box - a
-    boxed legend has no reliably empty corner to sit in on this chart, since
-    every series converges toward the same top-right region)."""
-    style_grid(ax)
+def find_row(rows, pred, ctx=""):
+    for r in rows:
+        if pred(r):
+            return r
+    raise ValueError(f"No matching row: {ctx}")
 
-    label_targets = []  # (y, x, text, color) for the end-of-line label pass
+
+PCT_FMT = FuncFormatter(lambda x, _: fmt_pct(x, 0))
+
+
+# ============================================================================
+# DATA
+# ============================================================================
+
+table     = load_json("report/table.json")
+forensics = load_json("analysis/decision-forensics.json")
+ood       = load_json("analysis/ood-validation.json")
+
+ORIG_N = forensics.get("meta", {}).get("cases", 1102)
+OOD_N  = ood.get("meta", {}).get("cases", 185)
+
+
+# ============================================================================
+# CLEANUP OLD FIGURE FILES
+# ============================================================================
+
+OLD_FILES = [
+    "auc-comparison.svg", "auc-comparison.png",
+    "original-risk-coverage.svg", "original-risk-coverage.png",
+    "ood-risk-coverage.svg", "ood-risk-coverage.png",
+    "frozen-policy-comparison.svg", "frozen-policy-comparison.png",
+    "contact_sheet.png",
+]
+
+
+def cleanup():
+    for f in OLD_FILES:
+        path = os.path.join(OUT_DIR, f)
+        if os.path.exists(path):
+            os.remove(path)
+            print(f"  Removed old: {f}")
+
+
+# ============================================================================
+# FIGURE 1 — AUROC GROUPED BAR
+# ============================================================================
+
+def make_auroc():
+    """Grouped horizontal bars: ID vs OOD AUROC for every system."""
+    models = [
+        {"name": "Static rules",  "color": C_RULES,
+         "id":  forensics["ranking"]["static_rule_binary"]["auroc"],
+         "ood": ood["ranking"]["staticRule"]["auroc"]},
+        {"name": "DeepSeek Flash", "color": C_DEEPSEEK,
+         "id":  forensics["ranking"]["deepseek_autoMergeScore_gated"]["auroc"],
+         "ood": ood["ranking"]["deepseek_gated"]["auroc"]},
+        {"name": "JEV",            "color": C_JEV,
+         "id":  forensics["ranking"]["jev_autoMergeScore"]["auroc"],
+         "ood": ood["ranking"]["jev_pAutoMerge"]["auroc"],
+         "ci":  (ood["bootstrap"]["jevAuroc"]["lo"],
+                 ood["bootstrap"]["jevAuroc"]["hi"])},
+    ]
+
+    fig, ax = plt.subplots(figsize=(12, 5.5))
+    add_header(
+        fig,
+        "Ranking quality degrades under distribution shift",
+        f"AUROC · positive class = control (safe to merge) · "
+        f"ID n\u2009=\u2009{fmt_count(ORIG_N)}, "
+        f"OOD n\u2009=\u2009{fmt_count(OOD_N)}",
+    )
+    fig.subplots_adjust(top=0.84, left=0.17, right=0.92, bottom=0.12)
+
+    y = np.arange(len(models))
+    h = 0.30
+
+    for i, m in enumerate(models):
+        # ── ID bar (solid fill) ──────────────────────────────────────────
+        ax.barh(y[i] + h / 2 + 0.03, m["id"], h,
+                color=m["color"], alpha=0.85, zorder=2)
+        # ── OOD bar (outline only) ──────────────────────────────────────
+        ax.barh(y[i] - h / 2 - 0.03, m["ood"], h,
+                facecolor="white", edgecolor=m["color"],
+                linewidth=2.2, zorder=2)
+
+        # Value labels
+        ax.text(m["id"] + 0.012, y[i] + h / 2 + 0.03,
+                f'{m["id"]:.3f}', va="center", fontsize=12,
+                fontweight="bold", color=m["color"], path_effects=HALO)
+        ax.text(m["ood"] + 0.012, y[i] - h / 2 - 0.03,
+                f'{m["ood"]:.3f}', va="center", fontsize=12,
+                color=m["color"], path_effects=HALO)
+
+        # # Confidence-interval whisker (JEV only)
+        # if "ci" in m:
+        #     lo, hi = m["ci"]
+        #     ax.errorbar(
+        #         m["ood"], y[i] - h / 2 - 0.03,
+        #         xerr=[[m["ood"] - lo], [hi - m["ood"]]],
+        #         fmt="none", ecolor=m["color"],
+        #         elinewidth=2, capsize=5, zorder=3,
+        #     )
+
+    # Chance reference
+    ax.axvline(0.5, color=C_AXIS, linestyle=":", linewidth=1.8, zorder=1)
+    ax.text(0.5, len(models) - 0.6, "chance", ha="center", va="bottom",
+            fontsize=11, color=C_SUBTEXT, fontstyle="italic")
+
+    ax.set_yticks(y)
+    ax.set_yticklabels(
+        [m["name"] for m in models], fontsize=14, fontweight="bold",
+    )
+    ax.set_xlim(0.42, 0.92)
+    ax.set_xlabel("AUROC")
+    add_grid(ax, axis="x")
+
+    ax.legend(
+        handles=[
+            Patch(facecolor=C_SUBTEXT, alpha=0.7,
+                  label=f"In-distribution (n\u2009=\u2009{fmt_count(ORIG_N)})"),
+            Patch(facecolor="white", edgecolor=C_SUBTEXT, linewidth=2,
+                  label=f"OOD validation (n\u2009=\u2009{fmt_count(OOD_N)})"),
+        ],
+        loc="lower right", fontsize=11,
+    )
+
+    add_footer(fig)
+    save_fig(fig, "auroc-comparison")
+
+
+# ============================================================================
+# FIGURE 2 — RISK-COVERAGE SIDE-BY-SIDE
+# ============================================================================
+
+def _rc_panel(ax, series, xlim, ylim, panel_title):
+    """One precision-vs-coverage panel with step lines and direct labels."""
+    add_grid(ax)
     for s in series:
         pts = sorted(s["pts"], key=lambda p: p["coverage"])
         if not pts:
             continue
-        cov = [p["coverage"] for p in pts]
+        cov  = [p["coverage"]  for p in pts]
         prec = [p["precision"] for p in pts]
 
-        is_continuous = s.get("continuous", True)
-        if is_continuous and len(cov) > 1:
-            ax.plot(cov, prec, color=s["color"], drawstyle="steps-post", alpha=0.35,
-                     linewidth=2, zorder=2)
+        if s.get("continuous", True) and len(cov) > 1:
+            ax.plot(cov, prec, color=s["color"], drawstyle="steps-post",
+                    alpha=0.45, linewidth=2.5, zorder=2)
+        ax.scatter(cov, prec, color=s["color"], s=30, zorder=3, alpha=0.8)
 
-        is_original = s.get("type", "orig") == "orig"
-        marker = "o" if is_original else "s"
-        facecolor = s["color"] if is_original else "none"
-        ax.scatter(cov, prec, color=s["color"], marker=marker, facecolors=facecolor,
-                    edgecolors=s["color"], s=90, linewidths=2.2, zorder=3)
+        # Direct end-of-line label
+        x_pad = (xlim[1] - xlim[0]) * 0.015
+        ax.text(cov[-1] + x_pad, prec[-1], s["label"],
+                color=s["color"], fontsize=11, fontweight="bold",
+                va="center", ha="left", path_effects=HALO, clip_on=False)
 
-        label_targets.append((prec[-1], cov[-1], s["label"], s["color"]))
+    # 99% precision target
+    ax.axhline(0.99, color=C_GUIDE, linestyle="--", alpha=0.5,
+               linewidth=1.5, zorder=1)
+    ax.axhspan(0.99, ylim[1], color=C_GUIDE, alpha=0.04, zorder=0)
+    ax.text(xlim[1] * 0.97, 0.993, "99% target", color=C_GUIDE,
+            fontsize=10, ha="right", va="bottom", fontstyle="italic")
 
     ax.set_xlim(*xlim)
     ax.set_ylim(*ylim)
+    ax.xaxis.set_major_formatter(PCT_FMT)
+    ax.yaxis.set_major_formatter(PCT_FMT)
     ax.set_xlabel("Coverage")
-    ax.set_ylabel("Precision")
-    ax.xaxis.set_major_formatter(PCT_FORMATTER)
-    ax.yaxis.set_major_formatter(PCT_FORMATTER)
-
-    if target is not None:
-        lo, hi = target
-        ax.axhspan(lo, hi, color=C_GUIDE, alpha=0.1, zorder=1)
-        ax.axhline(lo, color=C_GUIDE, linestyle="--", alpha=0.6, linewidth=1.5, zorder=1)
-        if target_label:
-            ax.text(xlim[1] - (xlim[1] - xlim[0]) * 0.01, lo + (ylim[1] - lo) * 0.35,
-                     target_label, color=C_GUIDE, fontsize=13, va="bottom", ha="right",
-                     fontweight="bold")
-
-    if label_targets:
-        y_range = ylim[1] - ylim[0]
-        adj_y = declutter_1d([t[0] for t in label_targets], min_gap=y_range * 0.07)
-        x_pad = (xlim[1] - xlim[0]) * 0.012
-        for y_final, (_, x_raw, text, color) in zip(adj_y, label_targets):
-            ax.text(min(x_raw + x_pad, xlim[1] - x_pad / 2), y_final, text, color=color,
-                     fontsize=label_fontsize, fontweight="bold", va="center", ha="left",
-                     path_effects=TEXT_HALO, clip_on=False)
+    ax.set_title(panel_title, fontsize=14, fontweight="bold", pad=12)
 
 
-def plot_dumbbell_row(
-    ax,
-    y: float,
-    color: str,
-    orig_val: float,
-    ood_val: float,
-    xlim: tuple,
-    value_fmt: Callable[[float], str],
-    ood_ci: Optional[tuple] = None,
-    row_height: float = 1.0,
-) -> None:
-    """One 'before -> after' row: filled circle (original) connected to a
-    hollow square (OOD) by a line, with value labels placed to avoid both
-    the axis edges and each other. Shared by the AUROC comparison and the
-    frozen-policy comparison so both use the same before/after grammar."""
-    x_range = xlim[1] - xlim[0]
-
-    ax.plot([orig_val, ood_val], [y, y], color=color, linewidth=4, alpha=0.3, zorder=1)
-    ax.scatter(orig_val, y, color=color, s=190, zorder=3)
-    ax.scatter(ood_val, y, facecolors="white", edgecolors=color, marker="s", s=190,
-                linewidths=2.8, zorder=3)
-    if ood_ci is not None:
-        lo, hi = ood_ci
-        ax.errorbar(ood_val, y, xerr=[[max(ood_val - lo, 0)], [max(hi - ood_val, 0)]],
-                     fmt="none", ecolor=color, elinewidth=2.6, capsize=4, zorder=2)
-
-    text_orig, text_ood = value_fmt(orig_val), value_fmt(ood_val)
-    gap = abs(ood_val - orig_val)
-    collide_threshold = x_range * 0.10
-    edge_margin = x_range * 0.03
-    offset = x_range * 0.035
-
-    if gap < collide_threshold:
-        # Values are too close together for side-by-side labels: stack them
-        # above/below the row instead of letting them overlap horizontally.
-        mid_x = (orig_val + ood_val) / 2
-        mid_x = min(max(mid_x, xlim[0] + edge_margin), xlim[1] - edge_margin)
-        ax.text(mid_x, y + row_height * 0.30, text_orig, ha="center", va="bottom",
-                 fontsize=12.5, color=C_SUBTEXT, path_effects=TEXT_HALO, clip_on=False)
-        ax.text(mid_x, y - row_height * 0.30, text_ood, ha="center", va="top",
-                 fontsize=13.5, fontweight="bold", color=color, path_effects=TEXT_HALO,
-                 clip_on=False)
-    else:
-        for val, text, size, weight, col, other in (
-            (orig_val, text_orig, 12.5, "normal", C_SUBTEXT, ood_val),
-            (ood_val, text_ood, 13.5, "bold", color, orig_val),
-        ):
-            if val >= xlim[1] - edge_margin:
-                ha, tx = "right", val - offset
-            elif val <= xlim[0] + edge_margin:
-                ha, tx = "left", val + offset
-            elif val < other:
-                ha, tx = "right", val - offset
-            else:
-                ha, tx = "left", val + offset
-            ax.text(tx, y, text, ha=ha, va="center", fontsize=size, fontweight=weight,
-                     color=col, path_effects=TEXT_HALO, clip_on=False)
-
-
-# ----------------------------------------------------------------------------
-# LOAD DATA
-# ----------------------------------------------------------------------------
-table = load_json("report/table.json")
-forensics = load_json("analysis/decision-forensics.json")
-ood = load_json("analysis/ood-validation.json")
-
-# Sample sizes are read from the data when present and fall back to the
-# figures' previous hardcoded values otherwise, so nothing changes visually
-# until the source files actually carry these fields - at which point every
-# subtitle that cites n stays correct automatically instead of drifting out
-# of sync (they were previously typed as literal strings in three places).
-ORIG_N = forensics.get("meta", {}).get("cases") or forensics.get("n", 1102)
-OOD_N = ood.get("meta", {}).get("cases") or ood.get("n", 185)
-
-
-def find_row(rows: list, predicate: Callable[[dict], bool], context: str) -> dict:
-    for row in rows:
-        if predicate(row):
-            return row
-    raise ValueError(f"No matching row found for {context}. Check the input JSON.")
-
-
-# ----------------------------------------------------------------------------
-# FIGURE 1 & 2: Risk / Coverage
-# ----------------------------------------------------------------------------
-def make_fig_original_risk_coverage() -> None:
-    series = [
-        {"label": "JEV", "color": C_JEV, "pts": forensics["jevRiskCoverageCurve"]},
-        {"label": "DeepSeek Flash", "color": C_DEEPSEEK, "pts": forensics["deepseekRiskCoverageCurve"]},
-        {"label": "Static rules", "color": C_RULES, "pts": forensics["staticRuleRiskCoverageCurve"],
+def make_risk_coverage():
+    """Two side-by-side precision-vs-coverage panels (ID and OOD)."""
+    orig = [
+        {"label": "JEV",      "color": C_JEV,
+         "pts": forensics["jevRiskCoverageCurve"]},
+        {"label": "DeepSeek", "color": C_DEEPSEEK,
+         "pts": forensics["deepseekRiskCoverageCurve"]},
+        {"label": "Static",   "color": C_RULES,
+         "pts": forensics["staticRuleRiskCoverageCurve"],
          "continuous": False},
     ]
-    precisions = [p["precision"] for s in series for p in s["pts"]]
-    covs = [p["coverage"] for s in series for p in s["pts"]]
-
-    fig, ax = plt.subplots()
-    add_header(fig, "Original benchmark: risk/coverage",
-               f"Precision-coverage trade-off (n={format_count(ORIG_N)}) · Retrospective/oracle selection")
-    fig.subplots_adjust(top=0.85, left=0.08, right=0.95, bottom=0.1)
-
-    xmax = nice_upper_bound(max(covs), pad_frac=0.08)
-    ymin = max(0.0, min(precisions) - 0.02)
-    plot_risk_coverage_panel(ax, series, xlim=(0, xmax), ylim=(ymin, 1.006),
-                              target=(0.99, 1.0), target_label="99.0-100% target")
-
-    add_footer(fig)
-    export_figure(fig, "original-risk-coverage")
-
-
-def make_fig_ood_risk_coverage() -> None:
-    series = [
-        {"label": "JEV", "color": C_JEV, "pts": ood["curves"]["riskCoverage"]["jev"], "type": "ood"},
-        {"label": "DeepSeek Flash", "color": C_DEEPSEEK, "pts": ood["curves"]["riskCoverage"]["deepseek"],
-         "type": "ood"},
-        {"label": "Static rules", "color": C_RULES, "pts": ood["curves"]["riskCoverage"]["rules"],
-         "type": "ood", "continuous": False},
-    ]
-    precisions = [p["precision"] for s in series for p in s["pts"]]
-    covs = [p["coverage"] for s in series for p in s["pts"]]
-
-    fig, ax = plt.subplots()
-    add_header(fig, "OOD validation: risk/coverage",
-               f"Independent OOD validation (n={format_count(OOD_N)}) · Retrospective/oracle selection")
-    fig.subplots_adjust(top=0.85, left=0.08, right=0.95, bottom=0.1)
-
-    # Same y-scaling logic as the original-benchmark panel above, so the two
-    # figures are directly comparable rather than each choosing its own
-    # incidental range (the previous version zoomed one and not the other).
-    xmax = nice_upper_bound(max(covs), pad_frac=0.08)
-    ymin = max(0.0, min(precisions) - 0.02)
-    plot_risk_coverage_panel(ax, series, xlim=(0, xmax), ylim=(ymin, 1.006),
-                              target=(0.99, 1.0), target_label="99.0-100% target")
-
-    add_footer(fig)
-    export_figure(fig, "ood-risk-coverage")
-
-
-# ----------------------------------------------------------------------------
-# FIGURE 3: AUROC - ranking quality, original vs OOD
-# ----------------------------------------------------------------------------
-def make_fig_auroc() -> None:
-    models = [
-        {"name": "Static rules", "color": C_RULES,
-         "orig": forensics["ranking"]["static_rule_binary"]["auroc"],
-         "ood": ood["ranking"]["staticRule"]["auroc"]},
-        {"name": "DeepSeek Flash", "color": C_DEEPSEEK,
-         "orig": forensics["ranking"]["deepseek_autoMergeScore_gated"]["auroc"],
-         "ood": ood["ranking"]["deepseek_gated"]["auroc"]},
-        {"name": "JEV", "color": C_JEV,
-         "orig": forensics["ranking"]["jev_autoMergeScore"]["auroc"],
-         "ood": ood["ranking"]["jev_pAutoMerge"]["auroc"],
-         "ood_ci": (ood["bootstrap"]["jevAuroc"]["lo"], ood["bootstrap"]["jevAuroc"]["hi"])},
+    ood_s = [
+        {"label": "JEV",      "color": C_JEV,
+         "pts": ood["curves"]["riskCoverage"]["jev"]},
+        {"label": "DeepSeek", "color": C_DEEPSEEK,
+         "pts": ood["curves"]["riskCoverage"]["deepseek"]},
+        {"label": "Static",   "color": C_RULES,
+         "pts": ood["curves"]["riskCoverage"]["rules"],
+         "continuous": False},
     ]
 
-    all_vals = [m["orig"] for m in models] + [m["ood"] for m in models]
-    for m in models:
-        if "ood_ci" in m:
-            all_vals.extend(m["ood_ci"])
-    xlim = (min(0.5, min(all_vals)) - 0.05, max(all_vals) + 0.05)
-
-    # A title is only earned if the OOD ranking is unambiguous; otherwise
-    # fall back to a precise, non-speculative title.
-    ood_vals = [m["ood"] for m in models]
-    best_idx = max(range(len(models)), key=lambda i: ood_vals[i])
-    runner_up = max(v for i, v in enumerate(ood_vals) if i != best_idx)
-    if ood_vals[best_idx] - runner_up >= 0.03:
-        title = f"{models[best_idx]['name']} keeps the strongest ranking quality out-of-distribution"
-    else:
-        title = "Ranking quality: original benchmark vs OOD"
-
-    fig, ax = plt.subplots()
-    add_header(fig, title,
-               f"AUROC, positive class = control/safe · original n={format_count(ORIG_N)}, "
-               f"OOD n={format_count(OOD_N)}")
-    fig.subplots_adjust(top=0.83, left=0.14, right=0.95, bottom=0.12)
-
-    style_grid(ax, axis="x")
-    y_pos = np.arange(len(models))
-    for j, m in enumerate(models):
-        plot_dumbbell_row(ax, y_pos[j], m["color"], m["orig"], m["ood"], xlim,
-                           value_fmt=lambda v: f"{v:.3f}", ood_ci=m.get("ood_ci"))
-
-    ax.axvline(0.5, color=C_AXIS, linestyle=":", linewidth=2, zorder=1)
-    ax.text(0.5, max(y_pos) + 0.6, "chance = 0.5", ha="center", va="bottom", fontsize=13,
-             color=C_SUBTEXT)
-
-    ax.set_xlim(*xlim)
-    ax.set_ylim(min(y_pos) - 0.8, max(y_pos) + 0.9)
-    ax.set_yticks(y_pos)
-    ax.set_yticklabels([m["name"] for m in models], fontsize=16, fontweight="bold")
-    ax.set_xlabel("AUROC")
-    add_condition_key(ax, loc="lower right")
-
-    add_footer(fig)
-    export_figure(fig, "auc-comparison")
-
-
-# ----------------------------------------------------------------------------
-# FIGURE 4: Score calibration
-# ----------------------------------------------------------------------------
-def bubble_area(n: int, scale: float = 3.0, min_area: float = 20.0, max_area: float = 900.0) -> float:
-    """Shared by the real markers and the size-legend swatches, so the
-    legend always matches what's actually on the chart, including when the
-    cap (added for robustness against very large bins) kicks in."""
-    return min(max(n * scale, min_area), max_area)
-
-
-def make_fig_score_calibration() -> None:
-    orig_bins = forensics["calibrationBins"]
-    ood_bins = ood["calibration"]
-    centers = [0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95]
-
-    fig, ax = plt.subplots()
-    add_header(fig, "Score calibration",
-               "Observed control rate by JEV p(AUTO_MERGE) score bin · bubble size = n")
-    fig.subplots_adjust(top=0.85, left=0.08, right=0.95, bottom=0.1)
-
-    ax.plot([0, 1], [0, 1], color=C_AXIS, linestyle="--", zorder=1)
-    ax.text(0.99, 1.01, "Ideal calibration", ha="right", va="bottom", fontsize=14, color=C_SUBTEXT)
-
-    for c, ob, od in zip(centers, orig_bins, ood_bins):
-        if ob and ob["n"] > 0:
-            ax.scatter(c, ob["controlRate"], color=C_JEV, marker="o", s=bubble_area(ob["n"]), zorder=3)
-        if od and od["n"] > 0:
-            # Hollow marker in the SAME model color as the filled one, so the
-            # original-vs-OOD encoding matches every other figure (previously
-            # this chart alone used an unrelated third color for OOD points).
-            ax.scatter(c, od["controlRate"], facecolors="white", edgecolors=C_JEV, marker="s",
-                        s=bubble_area(od["n"]), linewidths=2.5, zorder=3)
-
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
-    ax.set_xlabel("JEV p(AUTO_MERGE)")
-    ax.set_ylabel("Observed control rate")
-    ax.xaxis.set_major_formatter(PCT_FORMATTER)
-    ax.yaxis.set_major_formatter(PCT_FORMATTER)
-    style_grid(ax)
-    add_condition_key(ax, loc="lower right", color=C_JEV)
-
-    size_benchmarks = [10, 100, 500]
-    size_handles = [
-        plt.scatter([], [], s=bubble_area(n), color=C_SUBTEXT, alpha=0.6, edgecolors="none")
-        for n in size_benchmarks
-    ]
-    size_legend = ax.legend(
-        size_handles, [f"n = {n}" for n in size_benchmarks], loc="upper left", title="Sample size",
-        title_fontsize=12, fontsize=12, labelspacing=1.2, borderpad=1, frameon=True,
-        facecolor="white", edgecolor="none",
+    # Shared y range across both panels
+    all_prec = (
+        [p["precision"] for s in orig  for p in s["pts"]]
+        + [p["precision"] for s in ood_s for p in s["pts"]]
     )
-    ax.add_artist(size_legend)
+    ymin = max(0, min(all_prec) - 0.03)
+
+    orig_xmax = max(p["coverage"] for s in orig  for p in s["pts"]) * 1.2
+    ood_xmax  = max(p["coverage"] for s in ood_s for p in s["pts"]) * 1.2
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True, figsize=(16, 6.5))
+    add_header(
+        fig,
+        "Risk-coverage trade-off collapses on OOD",
+        "Precision vs coverage at varying thresholds · retrospective / oracle selection",
+    )
+    fig.subplots_adjust(top=0.84, left=0.07, right=0.95,
+                        bottom=0.12, wspace=0.06)
+
+    _rc_panel(ax1, orig, xlim=(0, orig_xmax), ylim=(ymin, 1.015),
+              panel_title=f"In-distribution (n\u2009=\u2009{fmt_count(ORIG_N)})")
+    _rc_panel(ax2, ood_s, xlim=(0, ood_xmax), ylim=(ymin, 1.015),
+              panel_title=f"OOD validation (n\u2009=\u2009{fmt_count(OOD_N)})")
+
+    ax1.set_ylabel("Precision")
+    ax2.tick_params(labelleft=False)
 
     add_footer(fig)
-    export_figure(fig, "score-calibration")
+    save_fig(fig, "risk-coverage")
 
 
-# ----------------------------------------------------------------------------
-# FIGURE 5: Latency vs cost
-# ----------------------------------------------------------------------------
-def make_fig_latency_cost() -> None:
-    def row_99(m):
-        return find_row(table["rows"], lambda r: m in r["model"] and r["targetPrecision"] == 0.99,
-                         context=f"model containing '{m}' at targetPrecision=0.99 in table.rows")
+# ============================================================================
+# FIGURE 3 — FROZEN POLICY TRANSFER
+# ============================================================================
 
-    jev_orig, ds_orig = row_99("Jev"), row_99("deepseek")
-    jev_ood, ds_ood = ood["operational"]["jev"], ood["operational"]["deepseek"]
+def make_frozen_policy():
+    """Stacked bar: safe + unsafe auto-merges on OOD per system."""
+    def orig_row(m):
+        return find_row(
+            table["fixedThreshold"],
+            lambda x: m in x["model"] and x["split"] == "repo-disjoint",
+            f"orig fixedThreshold: {m}",
+        )
 
-    # Static rules have no LLM call in the loop, so latency and cost are
-    # taken as zero by definition rather than measured - flagged explicitly
-    # rather than silently pulled from a lookup that would never find them.
-    RULES_LATENCY_MS, RULES_COST_PER_1K = 0.0, 0.0
+    def ood_row(prefix):
+        return find_row(
+            ood["frozenPolicies"],
+            lambda f: (f["policy"].startswith(prefix)
+                       and "repo-disjoint" in f.get("policy", "")),
+            f"ood frozenPolicies: {prefix}",
+        )
 
-    pts = [
-        {"label": "JEV", "cond": "Original", "x": jev_orig["meanLatencyMs"], "y": jev_orig["costUsdPer1k"],
-         "color": C_JEV, "type": "orig", "align": "left", "ox": 40, "oy": -20},
-        {"label": "DeepSeek Flash", "cond": "Original", "x": ds_orig["meanLatencyMs"],
-         "y": ds_orig["costUsdPer1k"], "color": C_DEEPSEEK, "type": "orig", "align": "right", "ox": -40,
-         "oy": -20},
-        {"label": "JEV", "cond": "OOD", "x": jev_ood["latencyMeanMs"], "y": jev_ood["costPer1kUsd"],
-         "color": C_JEV, "type": "ood", "align": "left", "ox": 40, "oy": 30},
-        {"label": "DeepSeek Flash", "cond": "OOD", "x": ds_ood["latencyMeanMs"],
-         "y": ds_ood["costPer1kUsd"], "color": C_DEEPSEEK, "type": "ood", "align": "right", "ox": -40,
-         "oy": 30},
-        {"label": "Static rules", "cond": "Original", "x": RULES_LATENCY_MS, "y": RULES_COST_PER_1K,
-         "color": C_RULES, "type": "orig", "align": "left", "ox": 18, "oy": 22},
+    systems = [
+        {"name": "DeepSeek Flash", "color": C_DEEPSEEK,
+         "orig": orig_row("deepseek"), "ood": ood_row("DeepSeek")},
+        {"name": "JEV",            "color": C_JEV,
+         "orig": orig_row("Jev"),      "ood": ood_row("JEV")},
+        {"name": "Static rules",   "color": C_RULES,
+         "orig": orig_row("Static"),   "ood": ood_row("Static")},
     ]
+    # Worst (most unsafe) at top
+    systems.sort(key=lambda s: s["ood"]["unsafe"])
 
-    x_max = nice_upper_bound(max(p["x"] for p in pts), pad_frac=0.15)
-    y_max = nice_upper_bound(max(p["y"] for p in pts), pad_frac=0.15)
-    # A small negative margin keeps the (0, 0) static-rules point from
-    # sitting exactly on top of the axis spines.
-    x_pad, y_pad = x_max * 0.02, y_max * 0.02
+    fig, ax = plt.subplots(figsize=(13, 5.5))
+    add_header(
+        fig,
+        "Frozen policies: every system produced unsafe merges on OOD",
+        "Threshold frozen from original benchmark (all had 100% precision in-distribution)",
+    )
+    fig.subplots_adjust(top=0.82, left=0.18, right=0.85, bottom=0.12)
 
-    fig, ax = plt.subplots()
-    add_header(fig, "Latency-cost profile", "Observed benchmark cost and latency")
-    fig.subplots_adjust(top=0.85, left=0.08, right=0.95, bottom=0.1)
-    style_grid(ax)
+    y = np.arange(len(systems))
+    h = 0.55
 
-    for p in pts:
-        marker = "o" if p["type"] == "orig" else "s"
-        facecolor = p["color"] if p["type"] == "orig" else "white"
-        ax.scatter(p["x"], p["y"], color=p["color"], marker=marker, facecolors=facecolor,
-                    edgecolors=p["color"], s=200, linewidths=3, zorder=3)
-        txt = f"{p['label']} ({p['cond']})\n{p['x']:.0f} ms / {format_cost(p['y'])} per 1k"
-        ax.annotate(txt, (p["x"], p["y"]), xytext=(p["ox"], p["oy"]), textcoords="offset points",
-                     color=C_TEXT, fontsize=14, fontweight="bold", ha=p["align"], va="center",
-                     path_effects=TEXT_HALO)
+    for i, s in enumerate(systems):
+        auto   = s["ood"]["autoMerged"]
+        unsafe = s["ood"]["unsafe"]
+        safe   = auto - unsafe
+        prec   = s["ood"]["precision"]
 
-    # Directional arrows, original -> OOD, for the two LLM-based systems.
-    for orig_label, color in (("JEV", C_JEV), ("DeepSeek Flash", C_DEEPSEEK)):
-        p_orig = next(p for p in pts if p["label"] == orig_label and p["cond"] == "Original")
-        p_ood = next(p for p in pts if p["label"] == orig_label and p["cond"] == "OOD")
-        ax.annotate("", xy=(p_ood["x"], p_ood["y"]), xytext=(p_orig["x"], p_orig["y"]),
-                     arrowprops=dict(arrowstyle="->", color=C_AXIS, linewidth=2, shrinkA=15, shrinkB=15))
+        # Stacked horizontal bar: safe ■ + unsafe ■
+        ax.barh(y[i], safe, h, color=C_SAFE, alpha=0.75, zorder=2,
+                label="Safe" if i == 0 else "")
+        ax.barh(y[i], unsafe, h, left=safe, color=C_UNSAFE, alpha=0.75,
+                zorder=2, label="Unsafe" if i == 0 else "")
 
-    ax.set_xlim(-x_pad, x_max)
-    ax.set_ylim(-y_pad, y_max)
-    ax.set_xlabel("Mean latency (ms)")
-    ax.set_ylabel("Cost per 1,000 cases (USD)")
-    ax.yaxis.set_major_formatter(FuncFormatter(lambda y, _pos: f"${y:.2f}"))
-    add_condition_key(ax, loc="upper right")
+        # Labels after bar
+        ax.text(
+            auto + 1.5, y[i],
+            f"{fmt_pct(prec)} precision  ·  {unsafe} unsafe",
+            va="center", fontsize=12, fontweight="bold", color=C_TEXT,
+        )
+
+        # Counts inside bar segments
+        if safe > 3:
+            ax.text(safe / 2, y[i], str(safe), ha="center", va="center",
+                    fontsize=11, color="white", fontweight="bold")
+        if unsafe > 3:
+            ax.text(safe + unsafe / 2, y[i], str(unsafe), ha="center",
+                    va="center", fontsize=11, color="white", fontweight="bold")
+
+    ax.set_yticks(y)
+    ax.set_yticklabels(
+        [s["name"] for s in systems], fontsize=14, fontweight="bold",
+    )
+    ax.set_xlabel("Auto-merged cases (OOD)")
+    max_auto = max(s["ood"]["autoMerged"] for s in systems)
+    ax.set_xlim(0, max_auto * 2.2)
+    add_grid(ax, axis="x")
+
+    ax.legend(
+        handles=[
+            Patch(facecolor=C_SAFE, alpha=0.75, label="Safe auto-merges"),
+            Patch(facecolor=C_UNSAFE, alpha=0.75, label="Unsafe auto-merges"),
+        ],
+        loc="lower right", fontsize=11,
+    )
 
     add_footer(fig)
-    export_figure(fig, "latency-cost")
+    save_fig(fig, "frozen-policy-transfer")
 
 
-# ----------------------------------------------------------------------------
-# FIGURE 6: Frozen policy transfer
-# ----------------------------------------------------------------------------
-def make_fig_frozen_policy() -> None:
-    def get_orig(m):
-        return find_row(table["fixedThreshold"], lambda x: m in x["model"] and x["split"] == "repo-disjoint",
-                          context=f"model containing '{m}' on the repo-disjoint split in table.fixedThreshold")
+# ============================================================================
+# FIGURE 4 — ECOSYSTEM AUROC BREAKDOWN
+# ============================================================================
 
-    def get_frozen(prefix):
-        return find_row(ood["frozenPolicies"], lambda f: f["policy"].startswith(prefix),
-                          context=f"frozen policy starting with '{prefix}' in ood.frozenPolicies")
+def make_ecosystem_auroc():
+    """Horizontal bars: JEV AUROC on OOD broken down by ecosystem."""
+    eco_data = ood["stratification"]["ecosystem"]
+    valid = [e for e in eco_data
+             if e["jevAuroc"] is not None and e["n"] >= 8]
+    valid.sort(key=lambda e: e["jevAuroc"])
 
-    models = [
-        {"name": "Static rules", "color": C_RULES, "orig": get_orig("Static"), "ood": get_frozen("Static")},
-        {"name": "DeepSeek Flash", "color": C_DEEPSEEK, "orig": get_orig("deepseek"), "ood": get_frozen("DeepSeek")},
-        {"name": "JEV", "color": C_JEV, "orig": get_orig("Jev"), "ood": get_frozen("JEV")},
-    ]
+    jev_id = forensics["ranking"]["jev_autoMergeScore"]["auroc"]
 
-    metrics = [
-        {"title": "Precision", "field": "precision", "fmt": lambda v: format_percent(v),
-         "ax_fmt": PCT_FORMATTER, "pad_frac": 0.0, "cap_at_one": True},
-        {"title": "Coverage", "field": "coverage", "fmt": lambda v: format_percent(v),
-         "ax_fmt": PCT_FORMATTER, "pad_frac": 0.20, "cap_at_one": False},
-        {"title": "Unsafe merges", "field": "unsafe", "fmt": lambda v: format_count(v),
-         "ax_fmt": FuncFormatter(lambda x, _pos: format_count(x)), "pad_frac": 0.20, "cap_at_one": False},
-    ]
-    # Axis ceilings are computed from the data (with precision capped at its
-    # natural 100% bound) rather than hardcoded, so a future data point
-    # outside today's observed range is never silently clipped off-chart.
-    for m in metrics:
-        vals = [mod["orig"][m["field"]] for mod in models] + [mod["ood"][m["field"]] for mod in models]
-        m["xmax"] = 1.0 if m["cap_at_one"] else nice_upper_bound(max(vals), pad_frac=m["pad_frac"])
+    fig, ax = plt.subplots(figsize=(12, 5))
+    add_header(
+        fig,
+        "OOD signal concentrates in JavaScript — other ecosystems near or below chance",
+        f"JEV AUROC by ecosystem on OOD data · "
+        f"original benchmark (all Java/Maven) AUROC\u2009=\u2009{jev_id:.3f}",
+    )
+    fig.subplots_adjust(top=0.82, left=0.16, right=0.92, bottom=0.12)
 
-    fig, axes = plt.subplots(1, 3, figsize=(16, 9))
-    add_header(fig, "Frozen policy transfer: original vs OOD",
-               "Threshold frozen on the original repo-disjoint development split, applied unchanged to OOD")
-    fig.subplots_adjust(top=0.78, bottom=0.2, wspace=0.3, left=0.15, right=0.95)
+    y_pos = np.arange(len(valid))
+    h = 0.6
 
-    y_pos = np.arange(len(models))
-    for i, (ax, m) in enumerate(zip(axes, metrics)):
-        ax.set_title(m["title"], fontsize=18, fontweight="bold", pad=20)
-        style_grid(ax, axis="x")
+    for i, e in enumerate(valid):
+        color = C_JEV if e["jevAuroc"] >= 0.5 else C_UNSAFE
+        ax.barh(y_pos[i], e["jevAuroc"], h, color=color, alpha=0.8,
+                zorder=2)
+        ax.text(
+            e["jevAuroc"] + 0.015, y_pos[i],
+            f'{e["jevAuroc"]:.3f}   (n\u2009=\u2009{e["n"]})',
+            va="center", fontsize=12, fontweight="bold",
+            color=color, path_effects=HALO,
+        )
 
-        for j, mod in enumerate(models):
-            plot_dumbbell_row(ax, y_pos[j], mod["color"], mod["orig"][m["field"]], mod["ood"][m["field"]],
-                               xlim=(0, m["xmax"]), value_fmt=m["fmt"])
+    # Chance line
+    ax.axvline(0.5, color=C_AXIS, linestyle=":", linewidth=1.8, zorder=1)
+    ax.text(0.5, len(valid) - 0.55, "chance", ha="center", va="bottom",
+            fontsize=11, color=C_SUBTEXT, fontstyle="italic")
 
-        ax.set_xlim(0, m["xmax"])
-        ax.xaxis.set_major_formatter(m["ax_fmt"])
-        if i == 0:
-            ax.set_yticks(y_pos)
-            ax.set_yticklabels([mod["name"] for mod in models], fontsize=16, fontweight="bold")
-        else:
-            ax.set_yticks([])
-        ax.set_ylim(min(y_pos) - 0.6, max(y_pos) + 0.6)
-        ax.spines["left"].set_visible(i == 0)
-        if i > 0:
-            ax.tick_params(left=False)
+    # ID reference
+    ax.axvline(jev_id, color=C_JEV, linestyle="--", linewidth=1.5,
+               alpha=0.5, zorder=1)
+    ax.text(jev_id + 0.01, -0.55,
+            f"ID benchmark: {jev_id:.3f}", fontsize=10,
+            color=C_JEV, fontstyle="italic", va="top")
 
-    add_condition_key(fig.axes[-1], loc="lower right")
+    labels = [e["value"].capitalize() for e in valid]
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(labels, fontsize=14, fontweight="bold")
+    ax.set_xlim(0, jev_id + 0.08)
+    ax.set_xlabel("AUROC")
+    add_grid(ax, axis="x")
+
+    # Excluded ecosystems note
+    excluded = [e for e in eco_data if e["jevAuroc"] is None]
+    if excluded:
+        names = ", ".join(e["value"] for e in excluded)
+        ax.text(0.98, 0.02, f"Excluded (one-class or too small): {names}",
+                transform=ax.transAxes, fontsize=9, color=C_SUBTEXT,
+                ha="right", va="bottom")
 
     add_footer(fig)
-    export_figure(fig, "frozen-policy-comparison")
+    save_fig(fig, "ecosystem-auroc")
 
+
+# ============================================================================
+# FIGURE 5 — SCORE CALIBRATION DEVIATION
+# ============================================================================
+
+def make_calibration():
+    """Bar chart of calibration error per score bin, ID vs OOD."""
+    orig_bins = forensics["calibrationBins"]
+    ood_bins  = ood["calibration"]
+
+    centers   = []
+    dev_orig  = []
+    dev_ood   = []
+    n_ood_lst = []
+
+    for ob, od in zip(orig_bins, ood_bins):
+        c = (ob["lo"] + ob["hi"]) / 2
+        centers.append(c)
+        dev_orig.append(ob["controlRate"] - c if ob["n"] > 0 else None)
+        dev_ood.append(od["controlRate"] - c  if od["n"] > 0 else None)
+        n_ood_lst.append(od["n"])
+
+    fig, ax = plt.subplots(figsize=(14, 6))
+    add_header(
+        fig,
+        "Calibration collapses on OOD: high scores become unreliable",
+        "Deviation from ideal · observed safe rate \u2212 predicted score · "
+        "positive\u2009=\u2009conservative, negative\u2009=\u2009overconfident",
+    )
+    fig.subplots_adjust(top=0.82, left=0.08, right=0.95, bottom=0.14)
+
+    w = 0.035
+    c_arr = np.array(centers)
+
+    # Background safe / danger zones
+    ax.axhspan(0, 1,  color=C_SAFE,   alpha=0.04, zorder=0)
+    ax.axhspan(-1, 0, color=C_UNSAFE, alpha=0.04, zorder=0)
+    ax.axhline(0, color=C_AXIS, linewidth=1.5, zorder=1)
+
+    # ID bars (solid)
+    for c, d in zip(c_arr, dev_orig):
+        if d is not None:
+            ax.bar(c - w * 0.6, d, w, color=C_JEV, alpha=0.7, zorder=2)
+
+    # OOD bars (outlined)
+    for c, d in zip(c_arr, dev_ood):
+        if d is not None:
+            ax.bar(c + w * 0.6, d, w, facecolor="white",
+                   edgecolor=C_JEV, linewidth=1.8, zorder=2)
+
+    # Axis limits
+    all_devs = [d for d in dev_orig + dev_ood if d is not None]
+    y_lo = min(all_devs) * 1.2
+    y_hi = max(all_devs) * 1.2
+    ax.set_ylim(y_lo, y_hi)
+    ax.set_xlim(-0.02, 1.02)
+
+    # Zone labels
+    ax.text(0.97, y_hi * 0.45, "Conservative (safe direction)",
+            fontsize=10, color=C_SAFE, ha="right", fontstyle="italic",
+            alpha=0.7)
+    ax.text(0.97, y_lo * 0.35, "Overconfident (dangerous)",
+            fontsize=10, color=C_UNSAFE, ha="right", fontstyle="italic",
+            alpha=0.7)
+
+    # Annotate the 0.85-bin OOD extreme
+    idx_85 = 8  # 0.85 center
+    if dev_ood[idx_85] is not None:
+        obs = ood_bins[idx_85]["controlRate"]
+        ax.annotate(
+            f"Predicts 85% safe\nActual: {fmt_pct(obs)} safe",
+            xy=(c_arr[idx_85] + w * 0.6, dev_ood[idx_85]),
+            xytext=(0.62, y_lo * 0.65),
+            fontsize=10, color=C_UNSAFE, fontweight="bold",
+            arrowprops=dict(arrowstyle="->", color=C_UNSAFE, linewidth=1.5),
+            ha="center",
+        )
+
+    ax.set_xticks(c_arr)
+    ax.set_xticklabels([fmt_pct(c, 0) for c in centers], fontsize=11)
+    ax.set_xlabel("JEV p(AUTO_MERGE) score bin")
+    ax.set_ylabel("Calibration error")
+    add_grid(ax, axis="y")
+
+    ax.legend(
+        handles=[
+            Patch(facecolor=C_JEV, alpha=0.7,
+                  label=f"In-distribution (n\u2009=\u2009{fmt_count(ORIG_N)})"),
+            Patch(facecolor="white", edgecolor=C_JEV, linewidth=2,
+                  label=f"OOD (n\u2009=\u2009{fmt_count(OOD_N)})"),
+        ],
+        loc="upper left", fontsize=11,
+    )
+
+    add_footer(fig)
+    save_fig(fig, "score-calibration")
+
+
+# ============================================================================
+# FIGURE 6 — DECISION AGREEMENT HEATMAP
+# ============================================================================
+
+def make_decision_agreement():
+    """Annotated heatmap of pairwise decision agreement rates."""
+    counts = forensics["disagreements"]["counts"]
+    n = ORIG_N
+
+    systems = ["JEV", "DeepSeek\nFlash", "Static\nrules"]
+    agree = np.array([
+        [100.0,
+         (n - counts["jev_vs_deepseek"]) / n * 100,
+         (n - counts["jev_vs_rules"]) / n * 100],
+        [(n - counts["jev_vs_deepseek"]) / n * 100,
+         100.0,
+         (n - counts["deepseek_vs_rules"]) / n * 100],
+        [(n - counts["jev_vs_rules"]) / n * 100,
+         (n - counts["deepseek_vs_rules"]) / n * 100,
+         100.0],
+    ])
+
+    disagree = np.array([
+        [0,                          counts["jev_vs_deepseek"],  counts["jev_vs_rules"]],
+        [counts["jev_vs_deepseek"],  0,                         counts["deepseek_vs_rules"]],
+        [counts["jev_vs_rules"],     counts["deepseek_vs_rules"], 0],
+    ])
+
+    fig, ax = plt.subplots(figsize=(8, 7))
+    add_header(
+        fig,
+        "Systems make genuinely different decisions",
+        f"Pairwise decision agreement on original benchmark "
+        f"(n\u2009=\u2009{fmt_count(ORIG_N)})",
+    )
+    fig.subplots_adjust(top=0.84, left=0.20, right=0.95, bottom=0.10)
+
+    im = ax.imshow(agree, cmap="Blues", vmin=25, vmax=100, aspect="equal")
+
+    for i in range(3):
+        for j in range(3):
+            if i == j:
+                ax.text(j, i, "\u2014", ha="center", va="center",
+                        fontsize=22, color="white", fontweight="bold")
+            else:
+                val = agree[i, j]
+                txt_c = "white" if val > 60 else C_TEXT
+                ax.text(j, i - 0.12, f"{val:.1f}%", ha="center",
+                        va="center", fontsize=18, fontweight="bold",
+                        color=txt_c)
+                ax.text(j, i + 0.22,
+                        f"{int(disagree[i, j])} disagree",
+                        ha="center", va="center", fontsize=9,
+                        color=txt_c, alpha=0.8)
+
+    ax.set_xticks(range(3))
+    ax.set_xticklabels(systems, fontsize=13, fontweight="bold")
+    ax.set_yticks(range(3))
+    ax.set_yticklabels(systems, fontsize=13, fontweight="bold")
+
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    ax.tick_params(length=0)
+
+    # All-three-disagree note
+    all3 = counts["all_three_disagree"]
+    ax.text(
+        0.59, -0.1,
+        f"All three disagreed on {all3} cases ({all3 / n * 100:.1f}%)",
+        transform=ax.transAxes, fontsize=11, color=C_SUBTEXT,
+        ha="center", va="top",
+    )
+
+    #add_footer(fig)
+    save_fig(fig, "decision-agreement")
+
+
+# ============================================================================
+# FIGURE 7 — LATENCY & COST
+# ============================================================================
+
+def make_latency_cost():
+    """Side-by-side bar charts: mean latency and cost per 1k decisions."""
+    jev_op = ood["operational"]["jev"]
+    ds_op  = ood["operational"]["deepseek"]
+
+    systems   = ["Static rules", "JEV", "DeepSeek Flash"]
+    colors    = [C_RULES, C_JEV, C_DEEPSEEK]
+    latencies = [0, jev_op["latencyMeanMs"], ds_op["latencyMeanMs"]]
+    p95s      = [0, jev_op["latencyP95Ms"],  ds_op["latencyP95Ms"]]
+    costs     = [0, jev_op["costPer1kUsd"],  ds_op["costPer1kUsd"]]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 4.5))
+    add_header(
+        fig,
+        "Operational profile",
+        f"Mean latency and cost per 1,000 decisions · "
+        f"OOD run (n\u2009=\u2009{fmt_count(OOD_N)})",
+    )
+    fig.subplots_adjust(top=0.78, left=0.14, right=0.95,
+                        bottom=0.15, wspace=0.35)
+
+    y = np.arange(len(systems))
+    h = 0.55
+
+    # ── Latency panel ────────────────────────────────────────────────────
+    for i in range(len(systems)):
+        ax1.barh(y[i], latencies[i], h, color=colors[i],
+                 alpha=0.8, zorder=2)
+        lbl = f"{latencies[i]:,.0f} ms" if latencies[i] > 0 else "0 ms"
+        if p95s[i] > 0:
+            lbl += f"  (p95: {p95s[i]:,.0f})"
+        ax1.text(
+            max(latencies[i] + 40, 80), y[i], lbl,
+            va="center", fontsize=11, fontweight="bold",
+            color=colors[i], path_effects=HALO,
+        )
+
+    ax1.set_yticks(y)
+    ax1.set_yticklabels(systems, fontsize=13, fontweight="bold")
+    ax1.set_xlabel("Mean latency (ms)")
+    ax1.set_xlim(0, max(latencies) * 1.4)
+    ax1.set_title("Latency", fontsize=14, fontweight="bold", pad=10)
+    add_grid(ax1, axis="x")
+
+    # ── Cost panel ───────────────────────────────────────────────────────
+    for i in range(len(systems)):
+        ax2.barh(y[i], costs[i], h, color=colors[i],
+                 alpha=0.8, zorder=2)
+        lbl = fmt_cost(costs[i]) if costs[i] > 0 else "\\$0"
+        ax2.text(
+            max(costs[i] + 0.01, 0.025), y[i], lbl,
+            va="center", fontsize=11, fontweight="bold",
+            color=colors[i], path_effects=HALO,
+        )
+
+    ax2.set_yticks(y)
+    ax2.set_yticklabels(["" for _ in systems])
+    ax2.set_xlabel("Cost per 1,000 cases (USD)")
+    ax2.set_xlim(0, max(costs) * 1.4)
+    ax2.set_title("Cost", fontsize=14, fontweight="bold", pad=10)
+    add_grid(ax2, axis="x")
+
+    #add_footer(fig)
+    save_fig(fig, "latency-cost")
+
+
+# ============================================================================
+# CONTACT SHEET
+# ============================================================================
+
+def make_contact_sheet():
+    """Tile all seven figure PNGs into a single overview image."""
+    import matplotlib.image as mpimg
+
+    names = [
+        "auroc-comparison", "risk-coverage", "frozen-policy-transfer",
+        "ecosystem-auroc", "score-calibration", "decision-agreement",
+        "latency-cost",
+    ]
+    images = []
+    for name in names:
+        path = os.path.join(OUT_DIR, f"{name}.png")
+        if os.path.exists(path):
+            images.append(mpimg.imread(path))
+
+    if not images:
+        return
+
+    cols = 3
+    rows = math.ceil(len(images) / cols)
+    fig, axes = plt.subplots(rows, cols, figsize=(30, rows * 7))
+    axes_flat = np.asarray(axes).flatten()
+
+    for i, img in enumerate(images):
+        axes_flat[i].imshow(img)
+        axes_flat[i].axis("off")
+    for i in range(len(images), len(axes_flat)):
+        axes_flat[i].axis("off")
+
+    fig.suptitle("All Figures — Contact Sheet", fontsize=24,
+                 fontweight="bold", y=0.98)
+    fig.tight_layout(rect=[0, 0, 1, 0.96])
+    fig.savefig(os.path.join(OUT_DIR, "contact_sheet.png"), dpi=120)
+    plt.close(fig)
+    print("  ✓ contact_sheet")
+
+
+# ============================================================================
+# MAIN
+# ============================================================================
 
 if __name__ == "__main__":
-    make_fig_original_risk_coverage()
-    make_fig_ood_risk_coverage()
-    make_fig_auroc()
-    make_fig_score_calibration()
-    make_fig_latency_cost()
-    make_fig_frozen_policy()
-    print("Python figures generated successfully.")
+    print("Cleaning up old figures …")
+    cleanup()
+    print("Generating figures …")
+    make_auroc()
+    make_risk_coverage()
+    make_frozen_policy()
+    make_ecosystem_auroc()
+    make_calibration()
+    make_decision_agreement()
+    make_latency_cost()
+    make_contact_sheet()
+    print("Done — all figures in", OUT_DIR)

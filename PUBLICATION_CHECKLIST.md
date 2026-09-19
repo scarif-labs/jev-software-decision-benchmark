@@ -24,9 +24,9 @@ to `src/`, datasets, or benchmark results.
   - `scripts/verify_public_numbers.mjs`: **548 numeric tokens checked across all public
     markdown, 0 unexplained** (all traceable to canonical JSON or explicit constants).
 - [x] **Figures regenerated**
-  - `analysis/figures/`: `original-risk-coverage.svg`, `ood-risk-coverage.svg`,
-    `auc-comparison.svg`, `score-calibration.svg`, `latency-cost.svg`,
-    `frozen-policy-comparison.svg`. All valid XML, regenerated from canonical results.
+  - `analysis/figures/`: `auroc-comparison.svg`, `risk-coverage.svg`,
+    `frozen-policy-transfer.svg`, `ecosystem-auroc.svg`, `score-calibration.svg`,
+    `decision-agreement.svg`, `latency-cost.svg`. All valid XML, regenerated from canonical results.
 - [x] **Methodology documented** — `METHODOLOGY.md`, `docs/benchmark.md`.
 - [x] **Limitations documented** — `LIMITATIONS.md`.
 - [x] **Reproducibility documented** — `REPRODUCIBILITY.md`.

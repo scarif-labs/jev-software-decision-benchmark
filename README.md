@@ -7,9 +7,9 @@ in a real software workflow.
 
 ## Abstract
 
-We measured whether **JEV** (TypeSafe's System One decision model) can provide useful and
-reliable decisions when embedded in a real software automation workflow, using dependency
-updates as the concrete test case. JEV was compared against a deterministic static policy
+**We evaluated whether a general-purpose probabilistic decision primitive can extract and retain useful decision signal from software-change metadata under distribution shift.**
+
+Using dependency updates as the concrete test case, JEV (TypeSafe's System One decision model) was compared against a deterministic static policy
 and a strong general LLM (**DeepSeek Flash**) on identical pre-merge state. On a 1,102-case
 in-distribution benchmark (551 breaking / 551 control), JEV showed substantially stronger
 ranking quality (AUROC **0.851**) than static rules (**0.602**) and DeepSeek Flash
@@ -52,9 +52,9 @@ TypeSafe and are not treated as established facts.
 
 ## About Scarif Labs
 
-Scarif Labs builds and evaluates software systems that turn emerging computational
-primitives into measurable real-world workflows. This artifact is research/evaluation, not
-product development.
+Scarif Labs is an independent product and software studio building websites, web apps, AI products, mobile apps, SaaS, and custom software for ambitious founders and teams. 
+
+Through our research wing, we also get our hands dirty evaluating emerging technologies to understand their real-world capabilities. This artifact is an outcome of that research—an independent evaluation, not a commercial product.
 
 - Scarif Labs: https://www.scariflabs.com/
 - GitHub organization: https://github.com/scarif-labs
@@ -70,6 +70,8 @@ old/new version, update type, security flag, PR title/body, manifest diff, depen
 release notes, and pre-merge CI status. Post-merge facts (merge status, revert, failure
 category, gold label) are never included. See `docs/benchmark.md` and
 `data/leakage-report.json`.
+
+**Repository-code scope.** The benchmark intentionally evaluates decisions from dependency-update metadata and pre-merge change context; the systems are **not given the repository's source code or an index of API usage**. This means the benchmark measures whether each system can extract transferable decision signal from the available change metadata, not whether it can perform repository-specific compatibility analysis. All three systems receive the same information, so this limitation applies equally to the comparative evaluation.
 
 **Systems compared.**
 
@@ -91,7 +93,7 @@ deployable frozen-policy numbers. See `METHODOLOGY.md`.
 All tables report the three systems with ranking metrics and operational metrics kept
 separate. Figures are in `analysis/figures/`; full tables are in `RESULTS.md`.
 
-![AUROC comparison](analysis/figures/auc-comparison.svg)
+![AUROC comparison](analysis/figures/auroc-comparison.svg)
 
 ### In-distribution (1,102 cases)
 
@@ -100,8 +102,6 @@ separate. Figures are in `analysis/figures/`; full tables are in `RESULTS.md`.
 | Static rules | 0.602 | 0.486 | 10.34% | 0.00% | 99.12% | 1 | <1 ms | $0 |
 | DeepSeek Flash | 0.585 | 0.459 | 0.91% | 0.91% | 100% | 0 | 2,178 ms | $0.7056 |
 | JEV | 0.851 | 0.843 | 5.90% | 5.90% | 100% | 0 | 639 ms | $0.1447 |
-
-![Original risk–coverage](analysis/figures/original-risk-coverage.svg)
 
 ### Independent OOD validation (185 cases)
 
@@ -123,12 +123,24 @@ benchmark (no OOD labels used to choose thresholds):
 Retrospective oracle coverage at 99% and 99.5% precision measured 0% for all three systems
 on OOD: no threshold on these scores produced a non-empty safe policy even with label access.
 
-![OOD risk–coverage](analysis/figures/ood-risk-coverage.svg)
-![Frozen-policy comparison](analysis/figures/frozen-policy-comparison.svg)
+![Risk-coverage trade-off](analysis/figures/risk-coverage.svg)
+![Frozen-policy transfer](analysis/figures/frozen-policy-transfer.svg)
 
 ### Additional analysis
 
+**Ecosystem dependence:** JEV's OOD signal was highly dependent on the language ecosystem. While it retained a strong signal in JavaScript (AUROC 0.673), its performance in Rust, Java, and Go degraded to near or below chance.
+
+![Ecosystem AUROC](analysis/figures/ecosystem-auroc.svg)
+
+**Decision agreement:** A pairwise decision agreement analysis shows significant genuine disagreement between the three systems. Even when they perform similarly overall, they often make different individual mistakes.
+
+![Decision agreement](analysis/figures/decision-agreement.svg)
+
+**Score calibration:** High scores from JEV became dangerously overconfident under distribution shift, predicting safety when the actual safe rate was low.
+
 ![Score calibration](analysis/figures/score-calibration.svg)
+
+**Operational profile:** JEV provided a middle ground in terms of latency and cost compared to the near-zero cost of static rules and the higher cost of the LLM.
 
 ![Latency vs Cost](analysis/figures/latency-cost.svg)
 
@@ -140,8 +152,7 @@ on OOD: no threshold on these scores produced a non-empty safe policy even with 
   only weakly above chance; the absolute performance fell sharply.
 - The probability calibration/threshold did not transfer: the frozen 0.62 policy produced
   50.0% precision and 15 unsafe merges on OOD.
-- The threshold-transfer gap is concentrated in non-JavaScript ecosystems
-  (JavaScript AUROC 0.673; non-JavaScript 0.379). The OOD population is largely npm.
+- **OOD performance was heterogeneous by ecosystem:** JEV AUROC was 0.673 on JavaScript cases versus 0.379 on non-JavaScript cases. Because the OOD population is predominantly npm and the non-JavaScript strata are comparatively small, this is treated as an observed distribution-shift signal requiring further investigation, not evidence of ecosystem-specific overfitting.
 - Excluding ambiguous reverts did not change the conclusion (AUROC 0.605 → 0.592).
 - Ranking quality, calibration, and safe automation are separate properties; the results
   differ across all three.
@@ -150,11 +161,15 @@ The benchmark found a strong in-distribution JEV ranking signal that weakened su
 under independent distribution shift. JEV retained the highest OOD AUROC among the evaluated
 systems, but its original probability threshold did not transfer safely.
 
+The OOD result therefore concerns **transferability of metadata-level decision signal**, not the ability to determine whether a specific breaking API change is actually exercised by a repository.
+
 ## What this does not establish
 
 These results do not establish general superiority or inferiority of JEV as a general
 decision primitive. They do not establish:
 
+- that any system can reliably determine repository-specific compatibility without source-code or API-usage context;
+- that the observed OOD degradation would persist, disappear, or improve when repository source code is provided;
 - that JEV is superior to LLMs or to static rules in general;
 - that any system here is safe for production dependency automation;
 - that JEV produces portable probability calibration across distributions;
